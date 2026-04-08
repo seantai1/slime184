@@ -47,20 +47,18 @@
 <body>
 
 <h1>Slimelight</h1>
-<p class="subtitle">A Cinematic Path-Traced Slime in Tokyo &mdash; CS184 Final Project Proposal</p>
+<p class="subtitle">A Cinematic Path-Traced Slime &mdash; CS184 Final Project Proposal</p>
 
 <h2>Summary</h2>
 <p class="summary">
 We extend the CS184 Project 3-2 path tracer with subsurface scattering, wavelength-dependent
 dispersion, and HDR environment lighting to render a translucent slime blob in a
-small Tokyo street scene. Inspired by Asher Zhu&rsquo;s real-time UE5 demo
-<em>TokyOSlime</em>, we ask whether the same striking look can be reproduced more
-physically &mdash; and more correctly &mdash; through offline path tracing. Our deliverable
-is a hero render plus an animated sequence of the blob deforming on impact, with
-ablation comparisons isolating each rendering feature.
+small street scene. Our deliverable is a hero render plus an animated sequence of
+the blob deforming on impact, with ablation comparisons isolating the contribution
+of each rendering feature.
 </p>
 
-<h2>Team Members</h2>
+<h3>Team Members</h3>
 <ul class="team">
   <li>[Member 1]</li>
   <li>[Member 2]</li>
@@ -73,18 +71,19 @@ ablation comparisons isolating each rendering feature.
 The visual appeal of translucent materials &mdash; jelly, ice, soap, slime &mdash; comes from a
 tight composition of physical phenomena: light scattering through a translucent
 volume, refraction with chromatic dispersion, environment reflection, and caustics on
-nearby surfaces. Asher Zhu&rsquo;s real-time UE5 prototype <em>TokyOSlime</em> achieves a
-striking version of this look using Niagara Fluids and a custom screen-space refraction
-shader that &ldquo;marches individual rays on the light spectrum.&rdquo;
+nearby surfaces. Reproducing that look convincingly is hard because each phenomenon
+individually is expensive, and they only read as &ldquo;slime&rdquo; when they appear together
+in the same image.
 </p>
 
 <p>
-Real-time engines necessarily approximate. Screen-space refraction loses anything
+Real-time game engines necessarily approximate: screen-space refraction loses anything
 off-screen, baked lighting cannot react to deformation, and ad-hoc dispersion shaders
-trade physical correctness for frame budget. Our project asks the natural follow-up:
-<em>can we reproduce &mdash; and ideally surpass &mdash; that look using a physically-based offline
-renderer?</em> Concretely, we extend our Project 3-2 path tracer with three core features
-that, together, drive the slime aesthetic:
+trade physical correctness for frame budget. We were inspired by a real-time UE5 slime
+demo by Asher Zhu, and our project asks the natural follow-up: <em>can we reproduce
+&mdash; and ideally surpass &mdash; that look using a physically-based offline renderer?</em>
+Concretely, we extend our Project 3-2 path tracer with three core features that,
+together, drive the slime aesthetic:
 </p>
 
 <ul>
@@ -138,17 +137,17 @@ plus a single hero render that proves we understood how to compose them.
   <li>
     <strong>Animated falling-blob sequence.</strong> Either a mass-spring soft body simulated in
     our own code (jello-world style), or a Blender Mantaflow FLIP fluid bake exported as
-    per-frame Alembic meshes for the merge-into-puddle moment in the reference video.
+    per-frame Alembic meshes, so we can render the blob deforming on impact and merging into a puddle.
   </li>
   <li>
     <strong>Caustics on the wet ground</strong> via photon mapping or bidirectional path tracing.
   </li>
   <li>
     <strong>Wet-asphalt BSDF</strong> &mdash; a specular layer over diffuse with view-dependent gloss &mdash;
-    so the puddle reflects the blob the way it does in the reference.
+    so nearby puddles pick up the blob&rsquo;s color and silhouette.
   </li>
   <li>
-    <strong>Hand-modeled or asset-pack Tokyo alleyway</strong> as the hero scene, instead of a
+    <strong>Hand-modeled or asset-pack alleyway</strong> as the hero scene, instead of a
     generic street.
   </li>
 </ol>
@@ -157,8 +156,8 @@ plus a single hero render that proves we understood how to compose them.
 <ul>
   <li>
     <strong>Visual:</strong> the ablation matrix &mdash; we should be able to point to each feature and
-    show the image getting visibly closer to the reference. The hero render should be
-    stylistically comparable to a frame from <em>TokyOSlime</em>.
+    show the image getting visibly closer to a convincing slime look. The hero render
+    should read stylistically as a cinematic, photographic slime shot.
   </li>
   <li>
     <strong>Numerical:</strong> variance vs. samples-per-pixel curves for the env-map MIS
@@ -170,7 +169,7 @@ plus a single hero render that proves we understood how to compose them.
 
 <h3>Questions we plan to answer</h3>
 <ul>
-  <li>Can offline path tracing replicate the visual appeal of a real-time game-engine slime, given enough samples per pixel?</li>
+  <li>Can offline path tracing replicate the visual appeal of a real-time game-engine slime in a physically correct way, given enough samples per pixel?</li>
   <li>How does spectral dispersion compose with subsurface scattering inside the same translucent material &mdash; how many samples does it take to converge?</li>
   <li>Where does the bulk of variance in the final scene come from, and which sampling improvement (env-map IS, MIS, hero-wavelength, spectral MIS) targets it best?</li>
 </ul>
@@ -195,7 +194,7 @@ plus a single hero render that proves we understood how to compose them.
 
 <h3>Week 3 &mdash; Apr 22 to Apr 28: Scene authoring &amp; integration</h3>
 <ul>
-  <li>Author or acquire a small Tokyo alley scene in Blender; place camera, HDRi</li>
+  <li>Author or acquire a small alley scene in Blender; place camera, HDRi</li>
   <li>Model / sculpt the slime mesh</li>
   <li>Build export pipeline (OBJ + camera + HDRi &rarr; our renderer)</li>
   <li>First hero render; iterate on materials and lighting</li>
@@ -230,9 +229,9 @@ plus a single hero render that proves we understood how to compose them.
   <li>Bridson. <em>Fluid Simulation for Computer Graphics</em> &mdash; only if we pursue our own soft-body or fluid solver instead of baking in Blender.</li>
 </ul>
 
-<h3>Visual reference &amp; comparable past projects</h3>
+<h3>Inspiration</h3>
 <ul>
-  <li>Asher Zhu, <em>TokyOSlime</em> &mdash; <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a> and <a href="https://80.lv/articles/unreal-engine-5-powered-slime-simulation-by-asher-zhu">80.lv coverage</a></li>
+  <li>Asher Zhu&rsquo;s real-time UE5 slime demo &mdash; <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a></li>
 </ul>
 
 </body>
