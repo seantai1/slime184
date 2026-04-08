@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Slimelight — CS184 Final Project Proposal</title>
+<title>Slimelight - CS184 Final Project Proposal</title>
 <style>
   :root { --ink:#1a1a1a; --muted:#555; --rule:#dcdcdc; --link:#1a5fb4; }
   html { -webkit-text-size-adjust: 100%; }
@@ -30,6 +30,21 @@
   a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
   code { background:#f3f3f3; padding:0.05em 0.3em; border-radius:3px; font-size:0.95em; }
+  .example-video {
+    margin: 1em 0 1.6em 0;
+  }
+  .example-video video {
+    width: 100%;
+    max-width: 720px;
+    display: block;
+    border-radius: 8px;
+    background: #000;
+  }
+  .example-video p {
+    margin-top: 0.5em;
+    color: var(--muted);
+    font-size: 0.95em;
+  }
   blockquote {
     margin: 0.6em 0 0.6em 0;
     padding: 0.4em 0.9em;
@@ -47,43 +62,43 @@
 <body>
 
 <h1>Slimelight</h1>
-<p class="subtitle">A Cinematic Path-Traced Slime &mdash; CS184 Final Project Proposal</p>
+<p class="subtitle">A Cinematic Path-Traced Slime for the CS184 Final Project Proposal</p>
 
 <h2>Summary</h2>
 <p class="summary">
-We extend the CS184 Project 3-2 path tracer with subsurface scattering, wavelength-dependent
-dispersion, and HDR environment lighting to render a translucent slime blob in a
-small street scene. Our deliverable is a hero render plus an animated sequence of
-the blob deforming on impact, with ablation comparisons isolating the contribution
-of each rendering feature.
+We want to extend the CS184 Project 3-2 path tracer with subsurface scattering,
+wavelength-dependent dispersion, and HDR environment lighting so we can render a
+translucent slime blob in a small street scene. The main result will be a final
+render of the blob in that scene, plus an animated version where it deforms on
+impact. We also plan to show comparison renders so it is clear what each feature adds.
 </p>
+
 
 <h3>Team Members</h3>
 <ul class="team">
-  <li>[Member 1]</li>
-  <li>[Member 2]</li>
-  <li>[Member 3]</li>
-  <li>[Member 4]</li>
+  <li>Mohammed Amin</li>
+  <li>Sean Tai</li>
+  <li>Andy Yang</li>
+  <li>Pranav Subbarayan</li>
 </ul>
 
 <h2>Problem Description</h2>
 <p>
-The visual appeal of translucent materials &mdash; jelly, ice, soap, slime &mdash; comes from a
-tight composition of physical phenomena: light scattering through a translucent
-volume, refraction with chromatic dispersion, environment reflection, and caustics on
-nearby surfaces. Reproducing that look convincingly is hard because each phenomenon
-individually is expensive, and they only read as &ldquo;slime&rdquo; when they appear together
-in the same image.
+The visual appeal of translucent materials like jelly, ice, soap, and slime comes
+from several effects happening at once: light scattering through the material,
+refraction with chromatic dispersion, reflections from the environment, and light
+patterns on nearby surfaces. Getting that look right is difficult because each of
+these effects is expensive on its own, and the material only really reads as
+&ldquo;slime&rdquo; when they work together in the same image.
 </p>
 
 <p>
-Real-time game engines necessarily approximate: screen-space refraction loses anything
-off-screen, baked lighting cannot react to deformation, and ad-hoc dispersion shaders
-trade physical correctness for frame budget. We were inspired by a real-time UE5 slime
-demo by Asher Zhu, and our project asks the natural follow-up: <em>can we reproduce
-&mdash; and ideally surpass &mdash; that look using a physically-based offline renderer?</em>
-Concretely, we extend our Project 3-2 path tracer with three core features that,
-together, drive the slime aesthetic:
+Real-time engines usually approximate these effects. Screen-space refraction misses
+anything off screen, baked lighting does not respond well to deformation, and many
+dispersion shaders are built for speed instead of physical accuracy. We were inspired
+by Asher Zhu&rsquo;s UE5 slime demo, and we want to see how close we can get to that kind
+of look with a physically based offline renderer. To do that, we plan to add three
+main features to our Project 3-2 path tracer:
 </p>
 
 <ul>
@@ -96,14 +111,14 @@ together, drive the slime aesthetic:
 The challenge is that each feature individually adds variance to the Monte Carlo
 estimator, and combined they require careful sampling strategies (hero-wavelength
 spectral sampling, environment-map importance sampling, multiple importance
-sampling) to converge in a reasonable number of samples per pixel. The intellectual
-payoff is a side-by-side study of how each PBR feature contributes to the final image,
-plus a single hero render that proves we understood how to compose them.
+sampling) to converge in a reasonable number of samples per pixel. If this works,
+we should end up with both a clean final render and a side-by-side comparison that
+shows what each rendering feature contributes.
 </p>
 
 <h2>Goals and Deliverables</h2>
 
-<h3>What we plan to deliver (baseline)</h3>
+<h3>Key Deliverables</h3>
 <ol>
   <li>
     <strong>Random-walk subsurface scattering</strong> integrated into our P3-2 path tracer,
@@ -124,15 +139,15 @@ plus a single hero render that proves we understood how to compose them.
   </li>
   <li>
     <strong>Ablation grid</strong>: the same blob rendered with each feature toggled
-    independently &mdash; (a) no SSS, (b) constant-IOR (no dispersion), (c) constant-color
-    environment, (d) full pipeline &mdash; so each contribution is visually attributable.
+    independently: (a) no SSS, (b) constant-IOR (no dispersion), (c) constant-color
+    environment, and (d) full pipeline, so each contribution is easy to see.
   </li>
   <li>
     <strong>Final writeup webpage, demo video, and presentation slides.</strong>
   </li>
 </ol>
 
-<h3>What we hope to deliver (reach)</h3>
+<h3>Stretch Goals</h3>
 <ol>
   <li>
     <strong>Animated falling-blob sequence.</strong> Either a mass-spring soft body simulated in
@@ -143,7 +158,7 @@ plus a single hero render that proves we understood how to compose them.
     <strong>Caustics on the wet ground</strong> via photon mapping or bidirectional path tracing.
   </li>
   <li>
-    <strong>Wet-asphalt BSDF</strong> &mdash; a specular layer over diffuse with view-dependent gloss &mdash;
+    <strong>Wet-asphalt BSDF</strong>, a specular layer over diffuse with view-dependent gloss,
     so nearby puddles pick up the blob&rsquo;s color and silhouette.
   </li>
   <li>
@@ -155,7 +170,7 @@ plus a single hero render that proves we understood how to compose them.
 <h3>How we&rsquo;ll measure quality</h3>
 <ul>
   <li>
-    <strong>Visual:</strong> the ablation matrix &mdash; we should be able to point to each feature and
+    <strong>Visual:</strong> the ablation matrix. We should be able to point to each feature and
     show the image getting visibly closer to a convincing slime look. The hero render
     should read stylistically as a cinematic, photographic slime shot.
   </li>
@@ -170,13 +185,13 @@ plus a single hero render that proves we understood how to compose them.
 <h3>Questions we plan to answer</h3>
 <ul>
   <li>Can offline path tracing replicate the visual appeal of a real-time game-engine slime in a physically correct way, given enough samples per pixel?</li>
-  <li>How does spectral dispersion compose with subsurface scattering inside the same translucent material &mdash; how many samples does it take to converge?</li>
+  <li>How does spectral dispersion interact with subsurface scattering inside the same translucent material, and how many samples does it take to converge?</li>
   <li>Where does the bulk of variance in the final scene come from, and which sampling improvement (env-map IS, MIS, hero-wavelength, spectral MIS) targets it best?</li>
 </ul>
 
 <h2>Schedule</h2>
 
-<h3>Week 1 &mdash; Apr 8 to Apr 14: Setup &amp; SSS</h3>
+<h3>Week 1, Apr 8 to Apr 14: Setup &amp; SSS</h3>
 <ul>
   <li>Fork P3-2 path tracer; get clean builds across all four team members&rsquo; machines</li>
   <li>Implement random-walk subsurface scattering (start with isotropic phase function, single homogeneous medium)</li>
@@ -184,7 +199,7 @@ plus a single hero render that proves we understood how to compose them.
   <li>Set up shared scene/asset/HDRi pipeline in a git repo</li>
 </ul>
 
-<h3>Week 2 &mdash; Apr 15 to Apr 21: Spectral &amp; environment</h3>
+<h3>Week 2, Apr 15 to Apr 21: Spectral &amp; environment</h3>
 <ul>
   <li>Refactor radiance representation for spectral sampling; implement hero-wavelength sampling (Wilkie et al. 2014)</li>
   <li>Implement dispersive dielectric BSDF with a Sellmeier IOR model</li>
@@ -192,7 +207,7 @@ plus a single hero render that proves we understood how to compose them.
   <li>Multiple importance sampling combining BSDF sampling, env-map sampling, and existing area lights</li>
 </ul>
 
-<h3>Week 3 &mdash; Apr 22 to Apr 28: Scene authoring &amp; integration</h3>
+<h3>Week 3, Apr 22 to Apr 28: Scene authoring &amp; integration</h3>
 <ul>
   <li>Author or acquire a small alley scene in Blender; place camera, HDRi</li>
   <li>Model / sculpt the slime mesh</li>
@@ -201,7 +216,7 @@ plus a single hero render that proves we understood how to compose them.
   <li><em>(Reach)</em> bake Mantaflow fluid sim, export per-frame Alembic meshes</li>
 </ul>
 
-<h3>Week 4 &mdash; Apr 29 to May 5: Polish &amp; deliverables</h3>
+<h3>Week 4, Apr 29 to May 5: Polish &amp; deliverables</h3>
 <ul>
   <li>Render the full ablation grid</li>
   <li><em>(Reach)</em> render the animated sequence</li>
@@ -213,7 +228,7 @@ plus a single hero render that proves we understood how to compose them.
 
 <h3>Codebase &amp; tools</h3>
 <ul>
-  <li>CS184 <strong>Project 3-2 path tracer</strong> (existing C++ scaffold from class) &mdash; the base we extend</li>
+  <li>CS184 <strong>Project 3-2 path tracer</strong> (existing C++ scaffold from class), which we will use as our base</li>
   <li><strong>Blender 4.x</strong> for scene assembly, mesh authoring, and (reach) Mantaflow fluid baking</li>
   <li><strong>Polyhaven</strong> for CC0 HDRis and any borrowed models</li>
   <li>Compute: team members&rsquo; personal machines (mix of Apple Silicon and x86); long renders run overnight</li>
@@ -226,12 +241,12 @@ plus a single hero render that proves we understood how to compose them.
   <li>Christensen &amp; Burley. &ldquo;Approximate Reflectance Profiles for Efficient Subsurface Scattering.&rdquo; Pixar Technical Memo, 2015.</li>
   <li>Wilkie, Nawaz, Droske, Weidlich, Hanika. &ldquo;Hero Wavelength Spectral Sampling.&rdquo; EGSR 2014.</li>
   <li>Veach. &ldquo;Robust Monte Carlo Methods for Light Transport Simulation.&rdquo; PhD thesis, Stanford, 1997. (For MIS.)</li>
-  <li>Bridson. <em>Fluid Simulation for Computer Graphics</em> &mdash; only if we pursue our own soft-body or fluid solver instead of baking in Blender.</li>
+  <li>Bridson. <em>Fluid Simulation for Computer Graphics</em>, only if we pursue our own soft-body or fluid solver instead of baking in Blender.</li>
 </ul>
 
 <h3>Inspiration</h3>
 <ul>
-  <li>Asher Zhu&rsquo;s real-time UE5 slime demo &mdash; <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a></li>
+  <li>Asher Zhu&rsquo;s real-time UE5 slime demo: <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a></li>
 </ul>
 
 </body>
