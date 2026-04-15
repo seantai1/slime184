@@ -5,12 +5,27 @@
 #include "scene/triangle.h"
 
 #include "pathtracer/medium.h"
+#include "pathtracer/spectral.h"
 #include "util/random_util.h"
 
 
 using namespace CGL::SceneObjects;
 
 namespace CGL {
+  namespace {
+    double power_heuristic(double pdf_a, double pdf_b) {
+      double a2 = pdf_a * pdf_a;
+      double b2 = pdf_b * pdf_b;
+      double denom = a2 + b2;
+      return denom > 0.0 ? a2 / denom : 0.0;
+    }
+
+    void inherit_spectral_state(const Ray& parent, Ray* child) {
+      child->spectral = parent.spectral;
+      child->wavelength_nm = parent.wavelength_nm;
+    }
+  }
+
   PathTracer::PathTracer() {
     gridSampler = new UniformGridSampler2D();
     hemisphereSampler = new UniformHemisphereSampler3D();
@@ -19,6 +34,7 @@ namespace CGL {
     tm_level = 1.0f;
     tm_key = 0.18;
     tm_wht = 5.0f;
+    spectral_sampling = false;
   }
 
   PathTracer::~PathTracer() {
@@ -139,7 +155,13 @@ namespace CGL {
         Intersection sample_isect;
         // If nothing blocks the light, accumulate (same reflection equation)
         if (!bvh->intersect(sample_ray, &sample_isect)) {
-          L_light += isect.bsdf->f(w_out, wi_obj) * Li * cos_theta / pdf;
+          double weight = 1.0;
+          if (light == envLight && !isect.bsdf->is_delta()) {
+            double bsdf_pdf = isect.bsdf->pdf(w_out, wi_obj);
+            weight = power_heuristic(pdf, bsdf_pdf);
+          }
+          L_light += weight * isect.bsdf->f(w_out, wi_obj) *
+                     Li * cos_theta / pdf;
         }
       }
       L_out += L_light / num_samples;
@@ -194,7 +216,8 @@ namespace CGL {
 
     Vector3D w_in;
     double pdf = 0.0;
-    Vector3D f = isect.bsdf->sample_f(w_out, &w_in, &pdf);
+    Vector3D f = isect.bsdf->sample_f(w_out, &w_in, &pdf,
+                                      r.spectral ? r.wavelength_nm : 0.0);
 
     if (pdf <= 0) return L_out;
     Vector3D w_in_world = o2w * w_in;
@@ -202,6 +225,7 @@ namespace CGL {
     Ray next_ray(hit_p, w_in_world);
     next_ray.min_t = EPS_F;
     next_ray.depth = r.depth - 1;
+    inherit_spectral_state(r, &next_ray);
 
     const double continue_prob = 0.7;
     const bool continue_path =
@@ -231,6 +255,16 @@ namespace CGL {
       Vector3D recursive = at_least_one_bounce_radiance(next_ray, next_isect);
       Vector3D indirect =
           f * recursive * abs_cos_theta(w_in) / (pdf * continuation_weight);
+      L_out += indirect;
+    } else if (envLight) {
+      Vector3D Li = envLight->sample_dir(next_ray);
+      double weight = 1.0;
+      if (!isect.bsdf->is_delta()) {
+        double light_pdf = envLight->pdf_L(hit_p, w_in_world);
+        weight = power_heuristic(pdf, light_pdf);
+      }
+      Vector3D indirect =
+          weight * f * Li * abs_cos_theta(w_in) / (pdf * continuation_weight);
       L_out += indirect;
     }
 
@@ -292,6 +326,7 @@ namespace CGL {
     next.min_t = EPS_F;
     next.max_t = INF_D;
     next.depth = r.depth;  // medium walk is orthogonal to surface-depth budget
+    inherit_spectral_state(r, &next);
 
     Vector3D L_next = random_walk_radiance(next, medium, walk_depth - 1);
     return (scatter_weight / cont_prob) * L_next;
@@ -345,7 +380,14 @@ namespace CGL {
       double normY = (origin.y + sample.y) / sampleBuffer.h;
       Ray r = camera->generate_ray(normX, normY);
       r.depth = max_ray_depth;
+      if (spectral_sampling) {
+        r.spectral = true;
+        r.wavelength_nm = Spectral::sample_hero_wavelength();
+      }
       Vector3D L = est_radiance_global_illumination(r);
+      if (spectral_sampling) {
+        L = Spectral::hero_sample_to_rgb(L, r.wavelength_nm);
+      }
       radiance += L;
       double illum = L.illum(); // brightness for adaptive sampling
 

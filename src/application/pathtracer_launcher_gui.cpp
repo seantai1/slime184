@@ -157,6 +157,8 @@ void PathtracerLauncherGUI::render_loop(GLFWwindow *a_window,
       Utils::HoverNote("Trace and show only the final bounce of light when performing the path-tracing algorithm.");
       ImGui::Checkbox("Use Hemisphere Sampling For Direct Lighting",
                       &a_settings.pathtracer_direct_hemisphere_sample);
+      ImGui::Checkbox("Use Hero-Wavelength Spectral Sampling",
+                      &a_settings.pathtracer_spectral_sampling);
 
       // the following are not configurable by students
       // ImGui::InputInt("NS Diff",
@@ -441,6 +443,7 @@ void PathtracerLauncherGUI::GUISettings::serialize(
 
   file << settings_window_width << "\n";
   file << settings_window_height << "\n";
+  file << pathtracer_spectral_sampling << "\n";
 
   file.close();
 }
@@ -486,6 +489,9 @@ void PathtracerLauncherGUI::GUISettings::deserialize(
 
   file >> settings_window_width;
   file >> settings_window_height;
+  if (!(file >> pathtracer_spectral_sampling)) {
+    pathtracer_spectral_sampling = false;
+  }
 
   file.close();
 }

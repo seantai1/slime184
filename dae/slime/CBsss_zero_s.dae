@@ -117,6 +117,7 @@
             <transmittance>1 1 1</transmittance>
             <roughness>0</roughness>
             <ior>1.33</ior>
+            <dispersion>0.003</dispersion>
             <sigma_a>5.0 5.0 5.0</sigma_a>
             <sigma_s>0.0 0.0 0.0</sigma_s>
             <phase_g>0.0</phase_g>

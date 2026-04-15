@@ -37,6 +37,9 @@ class SceneLight {
   virtual Vector3D sample_L(const Vector3D p, Vector3D* wi,
                             double* distToLight, double* pdf) const = 0;
   virtual bool is_delta_light() const = 0;
+  virtual double pdf_L(const Vector3D p, const Vector3D wi) const {
+    return 0.0;
+  }
 
 };
 

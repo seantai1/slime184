@@ -31,6 +31,7 @@ void usage(const char *binaryName) {
   printf("  -m  <INT>        Maximum ray depth\n");
   printf("  -o  <INT>        Accumulate Bounces of Light \n");
   printf("  -e  <PATH>       Path to environment map\n");
+  printf("  -S               Enable hero-wavelength spectral sampling\n");
   printf("  -b  <FLOAT>      The size of the aperture\n");
   printf("  -d  <FLOAT>      The focal distance\n");
   printf("  -f  <FILENAME>   Image (.png) file to save output to in windowless "
@@ -108,6 +109,8 @@ int main(int argc, char **argv) {
     { // extract settings that belong to config
       config.pathtracer_direct_hemisphere_sample =
           settings.pathtracer_direct_hemisphere_sample;
+      config.pathtracer_spectral_sampling =
+          settings.pathtracer_spectral_sampling;
       config.pathtracer_focalDistance = settings.pathtracer_focalDistance;
       config.pathtracer_lensRadius = settings.pathtracer_lensRadius;
       config.pathtracer_max_ray_depth = settings.pathtracer_max_ray_depth;
@@ -123,7 +126,7 @@ int main(int argc, char **argv) {
       config.pathtracer_accumulate_bounces = settings.pathtracer_accumulate_bounces;
     }
   } else {
-    while ((opt = getopt(argc, argv, "s:l:t:m:o:e:h:H:f:r:c:b:d:a:p:")) !=
+    while ((opt = getopt(argc, argv, "s:l:t:m:o:e:hHSf:r:c:b:d:a:p:")) !=
            -1) { // for each option...
       switch (opt) {
       case 'f':
@@ -178,7 +181,9 @@ int main(int argc, char **argv) {
         break;
       case 'H':
         config.pathtracer_direct_hemisphere_sample = true;
-        optind--;
+        break;
+      case 'S':
+        config.pathtracer_spectral_sampling = true;
         break;
       default:
         usage(argv[0]);

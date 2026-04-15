@@ -25,6 +25,7 @@ struct GUISettings {
     pathtracer_samples_per_patch = 32;
     pathtracer_max_tolerance = 0.05f;
     pathtracer_direct_hemisphere_sample = false;
+    pathtracer_spectral_sampling = false;
 
     pathtracer_lensRadius = 0.0;
     pathtracer_focalDistance = 4.7;
@@ -49,6 +50,7 @@ struct GUISettings {
 
 
   bool pathtracer_direct_hemisphere_sample;
+  bool pathtracer_spectral_sampling;
   bool render_custom_region = false;
   bool pathtracer_accumulate_bounces = true;
   double pathtracer_lensRadius;

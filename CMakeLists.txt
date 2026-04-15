@@ -135,6 +135,7 @@ set(APPLICATION_HEADERS
     src/pathtracer/ray.h
     src/pathtracer/raytraced_renderer.h
     src/pathtracer/sampler.h
+    src/pathtracer/spectral.h
     # misc
     src/util/sphere_drawing.h
     src/util/lodepng.h

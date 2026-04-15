@@ -32,6 +32,7 @@ public:
   Vector3D sample_L(const Vector3D p, Vector3D* wi, double* distToLight,
     double* pdf) const;
   bool is_delta_light() const { return false; }
+  double pdf_L(const Vector3D p, const Vector3D wi) const;
   /**
     * Returns the color found on the environment map by travelling in a specific
     * direction. This entails:
@@ -53,6 +54,7 @@ private:
 
   Vector2D dir_to_theta_phi(const Vector3D dir) const;
   Vector3D theta_phi_to_dir(const Vector2D& theta_phi) const;
+  double pdf_dir(const Vector3D& dir) const;
 
   Vector2D theta_phi_to_xy(const Vector2D& theta_phi) const;
   Vector2D xy_to_theta_phi(const Vector2D& xy) const;

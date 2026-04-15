@@ -83,7 +83,14 @@ class BSDF {
    * \param pdf address to store the pdf of the sampled incident direction
    * \return reflectance in the output incident and given outgoing directions
    */
-  virtual Vector3D sample_f (const Vector3D wo, Vector3D* wi, double* pdf) = 0;
+  virtual Vector3D sample_f (const Vector3D wo, Vector3D* wi, double* pdf,
+                             double wavelength_nm = 0.0) = 0;
+
+  /**
+   * Solid-angle pdf for sampling wi from wo. Delta BSDFs return 0 because their
+   * probability is discrete and only meaningful through sample_f.
+   */
+  virtual double pdf(const Vector3D wo, const Vector3D wi) { return 0.0; }
 
   /**
    * Get the emission value of the surface material. For non-emitting surfaces
@@ -135,7 +142,9 @@ class DiffuseBSDF : public BSDF {
   DiffuseBSDF(const Vector3D a) : reflectance(a) { }
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
+  double pdf(const Vector3D wo, const Vector3D wi);
   Vector3D get_emission() const { return Vector3D(); }
   bool is_delta() const { return false; }
 
@@ -185,7 +194,8 @@ public:
   double D(const Vector3D h);
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
   Vector3D get_emission() const { return Vector3D(); }
   bool is_delta() const { return false; }
 
@@ -207,7 +217,8 @@ class MirrorBSDF : public BSDF {
   MirrorBSDF(const Vector3D reflectance) : reflectance(reflectance) { }
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
   Vector3D get_emission() const { return Vector3D(); }
   bool is_delta() const { return true; }
 
@@ -227,12 +238,19 @@ class RefractionBSDF : public BSDF {
  public:
 
   RefractionBSDF(const Vector3D transmittance, double roughness, double ior)
-    : transmittance(transmittance), roughness(roughness), ior(ior) { }
+    : ior(ior), roughness(roughness), transmittance(transmittance),
+      use_sellmeier(false), use_cauchy(false), sellmeier_b(),
+      sellmeier_c(), cauchy_a(ior), cauchy_b(0.0) { }
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
   Vector3D get_emission() const { return Vector3D(); }
   bool is_delta() const { return true; }
+
+  double ior_at_wavelength(double wavelength_nm) const;
+  void set_sellmeier_coefficients(const Vector3D& b, const Vector3D& c);
+  void set_cauchy_coefficients(double a, double b);
 
   void render_debugger_node();
 
@@ -241,6 +259,12 @@ class RefractionBSDF : public BSDF {
   double ior;
   double roughness;
   Vector3D transmittance;
+  bool use_sellmeier;
+  bool use_cauchy;
+  Vector3D sellmeier_b;
+  Vector3D sellmeier_c;
+  double cauchy_a;
+  double cauchy_b;
 
 }; // class RefractionBSDF
 
@@ -252,13 +276,19 @@ class GlassBSDF : public BSDF {
 
   GlassBSDF(const Vector3D transmittance, const Vector3D reflectance,
             double roughness, double ior) :
-    transmittance(transmittance), reflectance(reflectance),
-    roughness(roughness), ior(ior) { }
+    ior(ior), roughness(roughness), reflectance(reflectance),
+    transmittance(transmittance), use_sellmeier(false), use_cauchy(false),
+    sellmeier_b(), sellmeier_c(), cauchy_a(ior), cauchy_b(0.0) { }
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
   Vector3D get_emission() const { return Vector3D(); }
   bool is_delta() const { return true; }
+
+  double ior_at_wavelength(double wavelength_nm) const;
+  void set_sellmeier_coefficients(const Vector3D& b, const Vector3D& c);
+  void set_cauchy_coefficients(double a, double b);
 
   void render_debugger_node();
 
@@ -268,6 +298,12 @@ class GlassBSDF : public BSDF {
   double roughness;
   Vector3D reflectance;
   Vector3D transmittance;
+  bool use_sellmeier;
+  bool use_cauchy;
+  Vector3D sellmeier_b;
+  Vector3D sellmeier_c;
+  double cauchy_a;
+  double cauchy_b;
 
 }; // class GlassBSDF
 
@@ -280,7 +316,9 @@ class EmissionBSDF : public BSDF {
   EmissionBSDF(const Vector3D radiance) : radiance(radiance) { }
 
   Vector3D f(const Vector3D wo, const Vector3D wi);
-  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf);
+  Vector3D sample_f(const Vector3D wo, Vector3D* wi, double* pdf,
+                    double wavelength_nm = 0.0);
+  double pdf(const Vector3D wo, const Vector3D wi);
   Vector3D get_emission() const { return radiance; }
   bool is_delta() const { return false; }
 

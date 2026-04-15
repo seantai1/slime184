@@ -66,6 +66,31 @@ inline Color color_from_string ( string color_string ) {
 
 }
 
+template <typename DielectricBSDF>
+inline void configure_dispersion(XMLElement* e_bsdf, DielectricBSDF* bsdf,
+                                 double base_ior) {
+  XMLElement* e_sellmeier_b = e_bsdf->FirstChildElement("sellmeier_b");
+  XMLElement* e_sellmeier_c = e_bsdf->FirstChildElement("sellmeier_c");
+  if (e_sellmeier_b && e_sellmeier_c) {
+    Vector3D b = spectrum_from_string(string(e_sellmeier_b->GetText()));
+    Vector3D c = spectrum_from_string(string(e_sellmeier_c->GetText()));
+    bsdf->set_sellmeier_coefficients(b, c);
+    stat("  |- Sellmeier dispersion: B=" << b << " C=" << c);
+    return;
+  }
+
+  XMLElement* e_cauchy_a = e_bsdf->FirstChildElement("cauchy_a");
+  XMLElement* e_cauchy_b = e_bsdf->FirstChildElement("cauchy_b");
+  XMLElement* e_dispersion = e_bsdf->FirstChildElement("dispersion");
+  if (e_cauchy_b || e_dispersion) {
+    double b = atof((e_cauchy_b ? e_cauchy_b : e_dispersion)->GetText());
+    double a = e_cauchy_a ? atof(e_cauchy_a->GetText())
+                          : base_ior - b / (0.55 * 0.55);
+    bsdf->set_cauchy_coefficients(a, b);
+    stat("  |- Cauchy dispersion: A=" << a << " B=" << b);
+  }
+}
+
 void ColladaParser::uri_load( XMLElement* xml ) {
 
   if (xml->Attribute("id")) {
@@ -1093,7 +1118,8 @@ void ColladaParser::parse_material ( XMLElement* xml, MaterialInfo& material ) {
           Vector3D transmittance = spectrum_from_string(string(e_transmittance->GetText()));
           float roughness = atof(e_roughness->GetText());
           float ior = atof(e_ior->GetText());
-          BSDF* bsdf = new RefractionBSDF(transmittance, roughness, ior);
+          RefractionBSDF* bsdf = new RefractionBSDF(transmittance, roughness, ior);
+          configure_dispersion(e_bsdf, bsdf, ior);
           material.bsdf = bsdf;
         } else if (type == "glass") {
           XMLElement *e_transmittance  = get_element(e_bsdf, "transmittance");
@@ -1104,7 +1130,8 @@ void ColladaParser::parse_material ( XMLElement* xml, MaterialInfo& material ) {
           Vector3D reflectance = spectrum_from_string(string(e_reflectance->GetText()));
           float roughness = atof(e_roughness->GetText());
           float ior = atof(e_ior->GetText());
-          BSDF* bsdf = new GlassBSDF(transmittance, reflectance, roughness, ior);
+          GlassBSDF* bsdf = new GlassBSDF(transmittance, reflectance, roughness, ior);
+          configure_dispersion(e_bsdf, bsdf, ior);
           // Optional homogeneous-medium tags for random-walk subsurface scattering.
           XMLElement *e_sigma_a = e_bsdf->FirstChildElement("sigma_a");
           XMLElement *e_sigma_s = e_bsdf->FirstChildElement("sigma_s");

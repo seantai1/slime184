@@ -45,6 +45,7 @@ RaytracedRenderer::RaytracedRenderer(size_t ns_aa,
                        float max_tolerance,
                        HDRImageBuffer* envmap,
                        bool direct_hemisphere_sample,
+                       bool spectral_sampling,
                        string filename,
                        double lensRadius,
                        double focalDistance) {
@@ -62,6 +63,7 @@ RaytracedRenderer::RaytracedRenderer(size_t ns_aa,
   pt->samplesPerBatch = samples_per_batch;                  // Number of samples per batch
   pt->maxTolerance = max_tolerance;                         // Maximum tolerance for early termination
   pt->direct_hemisphere_sample = direct_hemisphere_sample;  // Whether to use direct hemisphere sampling vs. Importance Sampling
+  pt->spectral_sampling = spectral_sampling;                // Whether to use hero-wavelength spectral samples
 
   this->lensRadius = lensRadius;
   this->focalDistance = focalDistance;

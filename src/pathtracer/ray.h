@@ -26,8 +26,11 @@ struct Ray {
   mutable double max_t; ///< treat the ray as a segment (ray "ends" at max_t)
 
   Vector3D inv_d;  ///< component wise inverse
+  double wavelength_nm;  ///< hero wavelength for spectral samples; <= 0 disables it
+  bool spectral;         ///< true when wavelength_nm should affect scattering
 
-  Ray() {}
+  Ray() : depth(0), o(), d(), min_t(0.0), max_t(INF_D), inv_d(),
+          wavelength_nm(0.0), spectral(false) {}
 
   /**
    * Constructor.
@@ -37,7 +40,8 @@ struct Ray {
    * \param depth depth of the ray
    */
     Ray(const Vector3D o, const Vector3D d, int depth = 0)
-        : o(o), d(d), min_t(0.0), max_t(INF_D), depth(depth) {
+        : depth(depth), o(o), d(d), min_t(0.0), max_t(INF_D),
+          wavelength_nm(0.0), spectral(false) {
     inv_d = 1.0 / d;
   }
 
@@ -50,7 +54,8 @@ struct Ray {
    * \param depth depth of the ray
    */
     Ray(const Vector3D o, const Vector3D d, double max_t, int depth = 0)
-        : o(o), d(d), min_t(0.0), max_t(max_t), depth(depth) {
+        : depth(depth), o(o), d(d), min_t(0.0), max_t(max_t),
+          wavelength_nm(0.0), spectral(false) {
     inv_d = 1.0 / d;
   }
 
@@ -66,7 +71,13 @@ struct Ray {
    */
   Ray transform_by(const Matrix4x4& t) const {
     const Vector4D& newO = t * Vector4D(o, 1.0);
-    return Ray((newO / newO.w).to3D(), (t * Vector4D(d, 0.0)).to3D());
+    Ray transformed((newO / newO.w).to3D(), (t * Vector4D(d, 0.0)).to3D(),
+                    (int) depth);
+    transformed.min_t = min_t;
+    transformed.max_t = max_t;
+    transformed.wavelength_nm = wavelength_nm;
+    transformed.spectral = spectral;
+    return transformed;
   }
 };
 

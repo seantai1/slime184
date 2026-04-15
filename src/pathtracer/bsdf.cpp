@@ -61,7 +61,8 @@ Vector3D DiffuseBSDF::f(const Vector3D wo, const Vector3D wi) {
 /**
  * Evalutate diffuse lambertian BSDF.
  */
-Vector3D DiffuseBSDF::sample_f(const Vector3D wo, Vector3D *wi, double *pdf) {
+Vector3D DiffuseBSDF::sample_f(const Vector3D wo, Vector3D *wi, double *pdf,
+                               double wavelength_nm) {
   // TODO (Part 3.1):
   // This function takes in only wo and provides pointers for wi and pdf,
   // which should be assigned by this function.
@@ -72,6 +73,10 @@ Vector3D DiffuseBSDF::sample_f(const Vector3D wo, Vector3D *wi, double *pdf) {
   *wi = sampler.get_sample(pdf);
   return f(wo, *wi);
 
+}
+
+double DiffuseBSDF::pdf(const Vector3D wo, const Vector3D wi) {
+  return wi.z > 0.0 ? wi.z / PI : 0.0;
 }
 
 
@@ -94,10 +99,15 @@ Vector3D EmissionBSDF::f(const Vector3D wo, const Vector3D wi) {
 /**
  * Evalutate Emission BSDF (Light Source)
  */
-Vector3D EmissionBSDF::sample_f(const Vector3D wo, Vector3D *wi, double *pdf) {
+Vector3D EmissionBSDF::sample_f(const Vector3D wo, Vector3D *wi, double *pdf,
+                                double wavelength_nm) {
   *pdf = 1.0 / PI;
   *wi = sampler.get_sample(pdf);
   return Vector3D();
+}
+
+double EmissionBSDF::pdf(const Vector3D wo, const Vector3D wi) {
+  return wi.z > 0.0 ? wi.z / PI : 0.0;
 }
 
 void EmissionBSDF::render_debugger_node()

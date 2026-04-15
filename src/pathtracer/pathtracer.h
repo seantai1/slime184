@@ -87,6 +87,7 @@ namespace CGL {
         size_t samplesPerBatch;
         double maxTolerance;
         bool direct_hemisphere_sample; ///< true if sampling uniformly from hemisphere for direct lighting. Otherwise, light sample
+        bool spectral_sampling;        ///< true to sample one hero wavelength per camera ray
 
         // Components //
 
