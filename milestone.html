@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slimelight - CS184 Milestone Report</title>
+<style>
+  :root {
+    --bg: #0f1110;
+    --panel: #171a18;
+    --ink: #f4f1e8;
+    --muted: #b6b9b0;
+    --rule: #343a35;
+    --accent: #7ccf8a;
+    --warm: #e7c06f;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+  }
+
+  main {
+    width: min(1080px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 42px 0 56px;
+  }
+
+  header {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 36px;
+    align-items: end;
+    min-height: 340px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 36px;
+  }
+
+  .eyebrow {
+    margin: 0 0 18px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(3rem, 8vw, 6.8rem);
+    line-height: 0.88;
+    letter-spacing: 0;
+  }
+
+  .subtitle {
+    max-width: 660px;
+    margin: 24px 0 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+  }
+
+  .meta {
+    border-left: 2px solid var(--accent);
+    padding-left: 18px;
+    color: var(--muted);
+  }
+
+  .meta strong { color: var(--ink); }
+
+  section {
+    padding: 34px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h2 {
+    margin: 0 0 18px;
+    font-size: 1.45rem;
+  }
+
+  p { margin: 0 0 14px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+
+  .result {
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .result img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+    background: #050505;
+  }
+
+  .result div { padding: 14px; }
+
+  .result h3 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+  }
+
+  .result p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 34px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  li { margin: 0 0 8px; }
+
+  .status {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .status div {
+    padding: 14px;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    min-height: 118px;
+  }
+
+  .status span {
+    display: block;
+    color: var(--warm);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .status p {
+    color: var(--muted);
+    font-size: 0.93rem;
+    margin: 0;
+  }
+
+  code {
+    color: var(--ink);
+    background: #232821;
+    border: 1px solid #344035;
+    border-radius: 4px;
+    padding: 0.05rem 0.28rem;
+    font-size: 0.92em;
+  }
+
+  footer {
+    padding-top: 24px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  @media (max-width: 820px) {
+    main { width: min(100% - 28px, 1080px); }
+    header, .two-col, .grid, .status {
+      grid-template-columns: 1fr;
+    }
+    header { min-height: auto; }
+  }
+
+  @media print {
+    :root {
+      --bg: #fff;
+      --panel: #fff;
+      --ink: #111;
+      --muted: #444;
+      --rule: #ccc;
+      --accent: #111;
+      --warm: #111;
+    }
+    body { background: #fff; font-size: 10pt; }
+    main { width: auto; margin: 0; padding: 0.3in; }
+    header { min-height: 0; padding-bottom: 16px; gap: 18px; }
+    section { padding: 16px 0; }
+    h1 { font-size: 34pt; }
+    h2 { font-size: 15pt; margin-bottom: 8px; }
+    .subtitle, p, li, .result p, .status p { font-size: 9.5pt; }
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .result img { max-height: 120px; }
+    .status { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .status div { min-height: 0; padding: 8px; }
+    footer { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <p class="eyebrow">CS184 Final Project Milestone</p>
+      <h1>Slimelight</h1>
+      <p class="subtitle">
+        A path-traced translucent slime material built from subsurface scattering,
+        spectral dispersion, and HDR environment lighting.
+      </p>
+    </div>
+    <div class="meta">
+      <p><strong>Team:</strong> Mohammed Amin, Sean Tai, Andy Yang, Pranav Subbarayan</p>
+      <p><strong>Milestone scope:</strong> Week 1 and Week 2 implementation progress</p>
+      <p><strong>Current focus:</strong> making the material read as slime in a real environment scene</p>
+    </div>
+  </header>
+
+  <section class="two-col">
+    <div>
+      <h2>What We Built</h2>
+    </div>
+    <div>
+      <p>
+        We extended the CS184 Project 3-2 path tracer into a renderer for
+        translucent slime-like materials. Week 1 focused on finishing the base
+        path tracer features we needed and adding a homogeneous random-walk
+        subsurface scattering medium. Week 2 added hero-wavelength spectral
+        sampling, wavelength-dependent dielectric refraction, EXR environment
+        map lighting, and multiple importance sampling across direct light,
+        BSDF, and environment samples.
+      </p>
+      <p>
+        The current validation scene is a Cornell-box setup with a chrome sphere
+        and a translucent slime sphere. We can render the same scene in three
+        modes: Week 1 SSS only, Week 2 spectral dispersion without HDRI, and
+        the full Week 2 mode with HDR environment lighting.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Preliminary Results</h2>
+    <div class="grid">
+      <article class="result">
+        <img src="validation/out_sss_sphere.png" alt="Week 1 translucent subsurface sphere render">
+        <div>
+          <h3>Week 1: SSS</h3>
+          <p>Random-walk scattering makes the sphere cloudy and translucent under Cornell-box lighting.</p>
+        </div>
+      </article>
+      <article class="result">
+        <img src="validation/out_spectral_slime.png" alt="Week 2 spectral slime render">
+        <div>
+          <h3>Week 2: Spectral</h3>
+          <p>Hero-wavelength sampling enables wavelength-dependent refraction and subtle dispersion.</p>
+        </div>
+      </article>
+      <article class="result">
+        <img src="validation/out_week2_compare.png" alt="Week 2 comparison render with spectral features">
+        <div>
+          <h3>Week 2: Full Path</h3>
+          <p>Environment lighting and MIS make reflections and refractions richer, but also increase variance.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="two-col">
+    <div>
+      <h2>Progress Against Plan</h2>
+    </div>
+    <div>
+      <p>
+        We are on track for the core renderer milestones. The Week 1 SSS medium
+        is integrated into glass materials through scene tags such as
+        <code>sigma_a</code>, <code>sigma_s</code>, and <code>phase_g</code>.
+        The Week 2 renderer supports spectral mode through <code>-S</code> and
+        HDRI loading through <code>-e path/to/map.exr</code>.
+      </p>
+      <p>
+        The main issue is visual quality rather than feature completeness. The
+        current sphere is technically translucent, but it still reads more like
+        a milky glass ball than a final slime asset. The full Week 2 image is
+        also noisy because spectral sampling, volume scattering, refraction, and
+        HDRI lighting all add variance.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Updated Work Plan</h2>
+    <div class="status">
+      <div>
+        <span>Done</span>
+        <p>Week 1 base path tracer integration, refractive glass, and homogeneous SSS validation renders.</p>
+      </div>
+      <div>
+        <span>Done</span>
+        <p>Week 2 spectral mode, Cauchy/Sellmeier dispersion, EXR environment lighting, and MIS support.</p>
+      </div>
+      <div>
+        <span>Next</span>
+        <p>Create an open environment scene: slime on a table or ground surface surrounded by a sunny HDRI.</p>
+      </div>
+      <div>
+        <span>Polish</span>
+        <p>Tune slime color and scattering, render the ablation grid, and produce final high-sample images.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="two-col">
+    <div>
+      <h2>What We Learned</h2>
+    </div>
+    <div>
+      <ul>
+        <li>Subsurface scattering gives the material its cloudy translucent body, but dense scattering converges slowly.</li>
+        <li>Spectral dispersion is subtle unless the scene has strong highlights and readable refraction cues.</li>
+        <li>HDRI lighting is useful for reflections, but the scene must be open so the sphere can actually see the environment.</li>
+        <li>The final hero shot should not be inside a Cornell box; it should place the slime on a surface in an outdoor or studio environment.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Slimelight milestone report. This page is designed to print as a compact one-page progress summary.
+  </footer>
+</main>
+</body>
+</html>
