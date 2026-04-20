@@ -66,10 +66,10 @@
             <transmittance>1 1 1</transmittance>
             <roughness>0</roughness>
             <ior>1.5</ior>
-            <dispersion>0.01</dispersion>
-            <sigma_a>0.8 0.2 1.4</sigma_a>
-            <sigma_s>2.5 2.5 2.5</sigma_s>
-            <phase_g>0.6</phase_g>
+            <dispersion>0.025</dispersion>
+            <sigma_a>0.4 0.05 0.6</sigma_a>
+            <sigma_s>0.05 0.05 0.05</sigma_s>
+            <phase_g>0.0</phase_g>
           </glass>
         </technique>
       </extra>
@@ -159,7 +159,7 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 0.94 0.34 1.4 0 -0.34 0.94 2.6 0 0 0 1</matrix>
+        <matrix sid="transform">1 0 0 0 0 1 0 0.8 0 0 1 2.5 0 0 0 1</matrix>
         <instance_camera url="#Camera-camera"/>
       </node>
 
@@ -174,17 +174,6 @@
           <bind_material>
             <technique_common>
               <instance_material symbol="slime-material" target="#slime-material"/>
-            </technique_common>
-          </bind_material>
-        </instance_geometry>
-      </node>
-
-      <node id="floor" name="floor" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
-        <instance_geometry url="#floor-mesh">
-          <bind_material>
-            <technique_common>
-              <instance_material symbol="floor-material" target="#floor-material"/>
             </technique_common>
           </bind_material>
         </instance_geometry>
