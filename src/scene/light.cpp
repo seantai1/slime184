@@ -1,5 +1,6 @@
 #include "light.h"
 
+#include <cmath>
 #include <iostream>
 
 #include "pathtracer/sampler.h"
@@ -39,6 +40,11 @@ Vector3D InfiniteHemisphereLight::sample_L(const Vector3D p, Vector3D* wi,
   *distToLight = INF_D;
   *pdf = 1.0 / (2.0 * PI);
   return radiance;
+}
+
+double InfiniteHemisphereLight::pdf_L(const Vector3D p,
+                                      const Vector3D wi) const {
+  return wi.y >= 0.0 ? 1.0 / (2.0 * PI) : 0.0;
 }
 
 // Point Light //
@@ -83,14 +89,39 @@ Vector3D AreaLight::sample_L(const Vector3D p, Vector3D* wi,
 
   Vector2D sample = sampler.get_sample() - Vector2D(0.5f, 0.5f);
   Vector3D d = position + sample.x * dim_x + sample.y * dim_y - p;
-  double cosTheta = dot(d, direction);
   double sqDist = d.norm2();
   double dist = sqrt(sqDist);
   *wi = d / dist;
+  double cosTheta = dot(-(*wi), direction.unit());
   *distToLight = dist;
-  *pdf = sqDist / (area * fabs(cosTheta));
-  return cosTheta < 0 ? radiance : Vector3D();
+  if (cosTheta <= 0.0) {
+    *pdf = 0.0;
+    return Vector3D();
+  }
+  *pdf = sqDist / (area * cosTheta);
+  return radiance;
 };
+
+double AreaLight::pdf_L(const Vector3D p, const Vector3D wi) const {
+  Vector3D n = direction.unit();
+  double denom = dot(wi, n);
+  if (std::abs(denom) < 1e-8) return 0.0;
+
+  double t = dot(position - p, n) / denom;
+  if (t <= 0.0) return 0.0;
+
+  Vector3D hit = p + t * wi;
+  Vector3D rel = hit - position;
+  double u = dot(rel, dim_x) / dim_x.norm2();
+  double v = dot(rel, dim_y) / dim_y.norm2();
+  if (std::abs(u) > 0.5 || std::abs(v) > 0.5) return 0.0;
+
+  double cosTheta = dot(-wi, n);
+  if (cosTheta <= 0.0) return 0.0;
+
+  double sqDist = (hit - p).norm2();
+  return sqDist / (area * cosTheta);
+}
 
 
 // Sphere Light //

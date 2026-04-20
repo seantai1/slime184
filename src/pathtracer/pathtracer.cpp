@@ -20,6 +20,17 @@ namespace CGL {
       return denom > 0.0 ? a2 / denom : 0.0;
     }
 
+    double total_light_pdf(const Scene* scene, const Vector3D& p,
+                           const Vector3D& wi) {
+      double pdf = 0.0;
+      for (SceneLight* light : scene->lights) {
+        if (!light->is_delta_light()) {
+          pdf += light->pdf_L(p, wi);
+        }
+      }
+      return pdf;
+    }
+
     void inherit_spectral_state(const Ray& parent, Ray* child) {
       child->spectral = parent.spectral;
       child->wavelength_nm = parent.wavelength_nm;
@@ -156,7 +167,7 @@ namespace CGL {
         // If nothing blocks the light, accumulate (same reflection equation)
         if (!bvh->intersect(sample_ray, &sample_isect)) {
           double weight = 1.0;
-          if (light == envLight && !isect.bsdf->is_delta()) {
+          if (!light->is_delta_light() && !isect.bsdf->is_delta()) {
             double bsdf_pdf = isect.bsdf->pdf(w_out, wi_obj);
             weight = power_heuristic(pdf, bsdf_pdf);
           }
@@ -165,6 +176,35 @@ namespace CGL {
         }
       }
       L_out += L_light / num_samples;
+    }
+
+    if (!isect.bsdf->is_delta()) {
+      Vector3D wi_obj;
+      double bsdf_pdf = 0.0;
+      Vector3D f = isect.bsdf->sample_f(
+          w_out, &wi_obj, &bsdf_pdf, r.spectral ? r.wavelength_nm : 0.0);
+
+      if (bsdf_pdf > 0.0 && wi_obj.z > 0.0) {
+        Vector3D wi_world = o2w * wi_obj;
+        Ray sample_ray(hit_p, wi_world);
+        sample_ray.min_t = EPS_F;
+        inherit_spectral_state(r, &sample_ray);
+
+        Vector3D Li;
+        double light_pdf = total_light_pdf(scene, hit_p, wi_world);
+
+        Intersection sample_isect;
+        if (bvh->intersect(sample_ray, &sample_isect)) {
+          Li = sample_isect.bsdf->get_emission();
+        } else if (envLight) {
+          Li = envLight->sample_dir(sample_ray);
+        }
+
+        if (Li.illum() > 0.0) {
+          double weight = power_heuristic(bsdf_pdf, light_pdf);
+          L_out += weight * f * Li * abs_cos_theta(wi_obj) / bsdf_pdf;
+        }
+      }
     }
 
     return L_out;
@@ -252,19 +292,23 @@ namespace CGL {
 
     Intersection next_isect;
     if (bvh->intersect(next_ray, &next_isect)) {
+      Vector3D Le = next_isect.bsdf->get_emission();
+      if (Le.illum() > 0.0) {
+        if (isect.bsdf->is_delta()) {
+          Vector3D direct =
+              f * Le * abs_cos_theta(w_in) / (pdf * continuation_weight);
+          L_out += direct;
+        }
+        return L_out;
+      }
       Vector3D recursive = at_least_one_bounce_radiance(next_ray, next_isect);
       Vector3D indirect =
           f * recursive * abs_cos_theta(w_in) / (pdf * continuation_weight);
       L_out += indirect;
-    } else if (envLight) {
+    } else if (envLight && isect.bsdf->is_delta()) {
       Vector3D Li = envLight->sample_dir(next_ray);
-      double weight = 1.0;
-      if (!isect.bsdf->is_delta()) {
-        double light_pdf = envLight->pdf_L(hit_p, w_in_world);
-        weight = power_heuristic(pdf, light_pdf);
-      }
       Vector3D indirect =
-          weight * f * Li * abs_cos_theta(w_in) / (pdf * continuation_weight);
+          f * Li * abs_cos_theta(w_in) / (pdf * continuation_weight);
       L_out += indirect;
     }
 

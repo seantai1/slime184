@@ -87,8 +87,9 @@ any of these optional children (backward compatible — absence disables SSS):
 ```
 
 Units: inverse scene distance. `sigma_t = sigma_a + sigma_s` sets the mean
-free path (1/σ_t). For Week 1 the phase function is isotropic — `phase_g`
-is parsed but the Henyey–Greenstein code for nonzero g is deferred.
+free path (1/σ_t). The medium sampler now uses Henyey-Greenstein scattering, so
+`phase_g > 0` biases forward scattering and `phase_g < 0` biases backward
+scattering.
 
 Dispersion is optional and only affects renders when `-S` is enabled. Use
 `<dispersion>` or `<cauchy_b>` for the Cauchy B coefficient in micrometers
@@ -111,6 +112,8 @@ its listed `<ior>` at 550 nm. For measured glass, use Sellmeier coefficients:
   BSDFs + `reflect`/`refract` helpers, including wavelength-dependent IOR.
 - `src/pathtracer/spectral.h` — hero-wavelength sampling and RGB
   reconstruction weights.
+- `src/pathtracer/pathtracer.cpp` — direct-light MIS between BSDF samples,
+  area-light samples, and environment-light samples.
 - `src/scene/environment_light.cpp` — EXR lat-long lookup, luminance/solid-angle
   importance sampling, and pdf queries for MIS.
 - `src/scene/collada/collada.cpp` — extended glass parser.

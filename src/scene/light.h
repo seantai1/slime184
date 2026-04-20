@@ -34,6 +34,7 @@ class InfiniteHemisphereLight : public SceneLight {
   Vector3D sample_L(const Vector3D p, Vector3D* wi, double* distToLight,
                     double* pdf) const;
   bool is_delta_light() const { return false; }
+  double pdf_L(const Vector3D p, const Vector3D wi) const;
 
   Vector3D radiance;
   Matrix3x3 sampleToWorld;
@@ -83,6 +84,7 @@ class AreaLight : public SceneLight {
   Vector3D sample_L(const Vector3D p, Vector3D* wi, double* distToLight,
                     double* pdf) const;
   bool is_delta_light() const { return false; }
+  double pdf_L(const Vector3D p, const Vector3D wi) const;
 
   Vector3D radiance;
   Vector3D position;

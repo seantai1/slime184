@@ -36,7 +36,7 @@ class HomogeneousMedium {
   // pdf_out receives the scalar pdf used for weighting.
   double sample_distance(double xi, double* pdf_out) const;
 
-  // Isotropic phase sample (g == 0 for Week 1).
+  // Henyey-Greenstein phase sample. Falls back to isotropic when g == 0.
   void sample_phase(const Vector3D& wo, Vector3D* wi, double* pdf) const;
 };
 

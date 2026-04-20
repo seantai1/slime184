@@ -45,7 +45,7 @@ struct AppConfig {
   AppConfig () {
 
     pathtracer_ns_aa = 1;
-    pathtracer_max_ray_depth = 1;
+    pathtracer_max_ray_depth = 6;
     pathtracer_accumulate_bounces = true;
     pathtracer_ns_area_light = 1;
 

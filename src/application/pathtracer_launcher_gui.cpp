@@ -6,6 +6,7 @@
 #include "imgui_internal.h"
 #include <fstream>
 #include <limits>
+#include <sstream>
 namespace Utils {
 bool is_selecting = false;
 
@@ -183,8 +184,11 @@ void PathtracerLauncherGUI::render_loop(GLFWwindow *a_window,
           "Samples Per Patch",
           reinterpret_cast<int *>(&a_settings.pathtracer_samples_per_patch));
     }
-    const int char_buf_size = 64;
+    const int char_buf_size = 256;
     static bool scene_file_exists = dae_exists(a_settings.scene_file_path);
+    static bool envmap_file_exists =
+        a_settings.pathtracer_envmap_path.empty() ||
+        exr_exists(a_settings.pathtracer_envmap_path);
     {
       ImGui::Separator();
       Utils::title_text("Camera Settings");
@@ -249,6 +253,18 @@ void PathtracerLauncherGUI::render_loop(GLFWwindow *a_window,
       }
       Utils::HoverNote("Relative path of the .dae scene file.\n Example: ../dae/sky/CBbunny.dae\nNote that pathing may be different on your system.");
 
+      static char envmap_file_name_buf[char_buf_size];
+      strncpy(envmap_file_name_buf, a_settings.pathtracer_envmap_path.c_str(),
+              char_buf_size);
+      if (ImGui::InputText("Envmap File", envmap_file_name_buf,
+                           char_buf_size)) {
+        a_settings.pathtracer_envmap_path = envmap_file_name_buf;
+        envmap_file_exists =
+            a_settings.pathtracer_envmap_path.empty() ||
+            exr_exists(a_settings.pathtracer_envmap_path);
+      }
+      Utils::HoverNote("Optional path to a lat-long OpenEXR environment map.\nExample: assets/hdri/rogland_clear_night_4k.exr");
+
       static char output_file_name_buf[char_buf_size];
       strncpy(output_file_name_buf, a_settings.output_file_name.c_str(),
               char_buf_size);
@@ -287,6 +303,7 @@ void PathtracerLauncherGUI::render_loop(GLFWwindow *a_window,
       ImVec2 winsize = ImGui::GetWindowSize();
       bool can_launch =
           scene_file_exists &&
+          envmap_file_exists &&
           (!a_settings.write_to_file || !a_settings.output_file_name.empty());
 
       // text warnings
@@ -296,6 +313,10 @@ void PathtracerLauncherGUI::render_loop(GLFWwindow *a_window,
               if (!scene_file_exists) {
                   ImGui::Text(
                       "Scene file does not exist. Please provide a valid scene file.");
+              }
+              if (!envmap_file_exists) {
+                  ImGui::Text(
+                      "Envmap file does not exist or is not an .exr file.");
               }
               if (a_settings.write_to_file && a_settings.output_file_name.empty()) {
                   ImGui::Text("Output file empty. Please specify output file name when "
@@ -374,13 +395,25 @@ int PathtracerLauncherGUI::draw(GUISettings &a_settings) {
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL2_Init();
 
-  // Set up fonts
-#if WIN32
-  const char* font_path = "../../../src/imgui/misc/fonts/DroidSans.ttf";
-#else
-  const char* font_path = "../src/imgui/misc/fonts/DroidSans.ttf";
-#endif
-  ImFont* font = io.Fonts->AddFontFromFileTTF(font_path, 18);
+  // Set up fonts. The launcher may be started from the repo root or from the
+  // build directory, so probe a few likely relative paths before falling back.
+  const char *font_path = nullptr;
+  const char *font_candidates[] = {
+      "src/imgui/misc/fonts/DroidSans.ttf",
+      "../src/imgui/misc/fonts/DroidSans.ttf",
+      "../../../src/imgui/misc/fonts/DroidSans.ttf",
+  };
+  for (const char *candidate : font_candidates) {
+    if (file_exists(candidate)) {
+      font_path = candidate;
+      break;
+    }
+  }
+
+  ImFont *font = font_path ? io.Fonts->AddFontFromFileTTF(font_path, 18) : nullptr;
+  if (!font) {
+    font = io.Fonts->AddFontDefault();
+  }
   if (font && font->IsLoaded()) {
     ImGui::PushFont(font);
   }
@@ -404,6 +437,9 @@ bool PathtracerLauncherGUI::file_exists(const std::string &name) {
 }
 bool PathtracerLauncherGUI::dae_exists(const std::string &name) {
   return file_exists(name) && name.find(".dae") != std::string::npos;
+}
+bool PathtracerLauncherGUI::exr_exists(const std::string &name) {
+  return file_exists(name) && name.find(".exr") != std::string::npos;
 }
 void PathtracerLauncherGUI::GUISettings::serialize(
     const std::string &a_file_path) {
@@ -440,6 +476,7 @@ void PathtracerLauncherGUI::GUISettings::serialize(
   file << output_file_name << "\n";
   file << cam_settings << "\n";
   file << scene_file_path << "\n";
+  file << pathtracer_envmap_path << "\n";
 
   file << settings_window_width << "\n";
   file << settings_window_height << "\n";
@@ -486,9 +523,22 @@ void PathtracerLauncherGUI::GUISettings::deserialize(
   std::getline(file, output_file_name);
   std::getline(file, cam_settings);
   std::getline(file, scene_file_path);
+  pathtracer_envmap_path.clear();
 
-  file >> settings_window_width;
-  file >> settings_window_height;
+  std::string next_line;
+  if (!std::getline(file, next_line)) {
+    return;
+  }
+
+  std::stringstream maybe_width(next_line);
+  if ((maybe_width >> settings_window_width) && maybe_width.eof()) {
+    file >> settings_window_height;
+  } else {
+    pathtracer_envmap_path = next_line;
+    file >> settings_window_width;
+    file >> settings_window_height;
+  }
+
   if (!(file >> pathtracer_spectral_sampling)) {
     pathtracer_spectral_sampling = false;
   }

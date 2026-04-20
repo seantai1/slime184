@@ -13,7 +13,7 @@ namespace PathtracerLauncherGUI {
 struct GUISettings {
   GUISettings() {
     pathtracer_ns_aa = 1;
-    pathtracer_max_ray_depth = 1;
+    pathtracer_max_ray_depth = 6;
     pathtracer_ns_area_light = 1;
 
     pathtracer_ns_diff = 1;
@@ -64,10 +64,12 @@ struct GUISettings {
   int w = 1024, h = 768, x = -1, y = 0, dx = 0, dy = 0;
   std::string output_file_name, cam_settings = "";
   std::string scene_file_path = "";
+  std::string pathtracer_envmap_path = "";
 };
 void render_loop(GLFWwindow *a_window, GUISettings &a_settings);
 int draw(GUISettings &a_settings);
 
 bool file_exists(const std::string &name);
 bool dae_exists(const std::string &name);
+bool exr_exists(const std::string &name);
 };

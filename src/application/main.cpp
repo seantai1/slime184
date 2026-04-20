@@ -124,6 +124,12 @@ int main(int argc, char **argv) {
       config.pathtracer_samples_per_patch =
           settings.pathtracer_samples_per_patch;
       config.pathtracer_accumulate_bounces = settings.pathtracer_accumulate_bounces;
+      if (!settings.pathtracer_envmap_path.empty()) {
+        std::cout << "[PathTracer] Loading environment map "
+                  << settings.pathtracer_envmap_path << std::endl;
+        config.pathtracer_envmap =
+            load_exr(settings.pathtracer_envmap_path.c_str());
+      }
     }
   } else {
     while ((opt = getopt(argc, argv, "s:l:t:m:o:e:hHSf:r:c:b:d:a:p:")) !=
