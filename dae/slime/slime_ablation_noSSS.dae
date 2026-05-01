@@ -12,7 +12,7 @@
     <light id="Area-light" name="Light">
       <technique_common>
         <point>
-          <color sid="color">0 0 0</color>
+          <color sid="color">30 30 30</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -21,7 +21,7 @@
       <extra>
         <technique profile="CGL">
           <area>
-            <color sid="color">0 0 0</color>
+            <color sid="color">30 30 30</color>
           </area>
         </technique>
       </extra>
@@ -55,7 +55,7 @@
             <diffuse><color sid="diffuse">0.5 0.3 0.7 1</color></diffuse>
             <specular><color sid="specular">0.5 0.5 0.5 1</color></specular>
             <shininess><float sid="shininess">50</float></shininess>
-            <index_of_refraction><float sid="ior">1.4</float></index_of_refraction>
+            <index_of_refraction><float sid="ior">1.5</float></index_of_refraction>
           </phong>
         </technique>
       </profile_COMMON>
@@ -65,38 +65,16 @@
             <reflectance>1 1 1</reflectance>
             <transmittance>1 1 1</transmittance>
             <roughness>0</roughness>
-            <ior>1.2</ior>
-            <dispersion>0.005</dispersion>
-            <sigma_a>0.5 0.05 0.5</sigma_a>
-            <sigma_s>0.05 0.05 0.05</sigma_s>
-            <phase_g>0.0</phase_g>
+            <ior>1.5</ior>
           </glass>
         </technique>
       </extra>
-    </effect>
-
-    <effect id="floor-effect">
-      <profile_COMMON>
-        <technique sid="common">
-          <phong>
-            <emission><color sid="emission">0 0 0 1</color></emission>
-            <ambient><color sid="ambient">0 0 0 1</color></ambient>
-            <diffuse><color sid="diffuse">0.7 0.7 0.7 1</color></diffuse>
-            <specular><color sid="specular">0 0 0 1</color></specular>
-            <shininess><float sid="shininess">1</float></shininess>
-            <index_of_refraction><float sid="ior">1</float></index_of_refraction>
-          </phong>
-        </technique>
-      </profile_COMMON>
     </effect>
   </library_effects>
 
   <library_materials>
     <material id="slime-material" name="slime">
       <instance_effect url="#slime-effect"/>
-    </material>
-    <material id="floor-material" name="floor">
-      <instance_effect url="#floor-effect"/>
     </material>
   </library_materials>
 
@@ -110,64 +88,18 @@
         </technique>
       </extra>
     </geometry>
-
-    <geometry id="floor-mesh" name="floor">
-      <mesh>
-        <source id="floor-mesh-positions">
-          <float_array id="floor-mesh-positions-array" count="12">4 0 -4 4 0 4 -4 0 4 -4 0 -4</float_array>
-          <technique_common>
-            <accessor source="#floor-mesh-positions-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="floor-mesh-normals">
-          <float_array id="floor-mesh-normals-array" count="6">0 1 0 0 1 0</float_array>
-          <technique_common>
-            <accessor source="#floor-mesh-normals-array" count="2" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="floor-mesh-map-0">
-          <float_array id="floor-mesh-map-0-array" count="12">0 1 0 1 0 1 0 1 0 1 0 1</float_array>
-          <technique_common>
-            <accessor source="#floor-mesh-map-0-array" count="6" stride="2">
-              <param name="S" type="float"/>
-              <param name="T" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="floor-mesh-vertices">
-          <input semantic="POSITION" source="#floor-mesh-positions"/>
-        </vertices>
-        <polylist material="floor-material" count="2">
-          <input semantic="VERTEX" source="#floor-mesh-vertices" offset="0"/>
-          <input semantic="NORMAL" source="#floor-mesh-normals" offset="1"/>
-          <input semantic="TEXCOORD" source="#floor-mesh-map-0" offset="2" set="0"/>
-          <vcount>3 3 </vcount>
-          <p>0 0 0 1 0 1 2 0 2 3 1 3 0 1 4 2 1 5</p>
-        </polylist>
-      </mesh>
-    </geometry>
   </library_geometries>
 
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 1 0 0 1 2.732 0 0 0 1</matrix>
+        <matrix sid="transform">1 0 0 0 0 1 0 0.8 0 0 1 2.5 0 0 0 1</matrix>
         <instance_camera url="#Camera-camera"/>
       </node>
-
       <node id="Area" name="Area" type="NODE">
         <matrix sid="transform">0.3 0 0 2 0 0.3 0 3 0 0 0.3 2 0 0 0 1</matrix>
         <instance_light url="#Area-light"/>
       </node>
-
       <node id="Slime" name="Slime" type="NODE">
         <matrix sid="transform">1 0 0 0 0 1 0 0.8 0 0 1 0 0 0 0 1</matrix>
         <instance_geometry url="#Slime-data">

@@ -12,7 +12,7 @@
     <light id="Area-light" name="Light">
       <technique_common>
         <point>
-          <color sid="color">0 0 0</color>
+          <color sid="color">30 30 30</color>
           <constant_attenuation>1</constant_attenuation>
           <linear_attenuation>0</linear_attenuation>
           <quadratic_attenuation>0.001599967</quadratic_attenuation>
@@ -21,7 +21,7 @@
       <extra>
         <technique profile="CGL">
           <area>
-            <color sid="color">0 0 0</color>
+            <color sid="color">30 30 30</color>
           </area>
         </technique>
       </extra>
@@ -65,11 +65,11 @@
             <reflectance>1 1 1</reflectance>
             <transmittance>1 1 1</transmittance>
             <roughness>0</roughness>
-            <ior>1.2</ior>
-            <dispersion>0.005</dispersion>
-            <sigma_a>0.5 0.05 0.5</sigma_a>
-            <sigma_s>0.05 0.05 0.05</sigma_s>
-            <phase_g>0.0</phase_g>
+            <ior>1.5</ior>
+            <dispersion>0.025</dispersion>
+            <sigma_a>0.4 0.05 0.6</sigma_a>
+            <sigma_s>2.5 2.5 2.5</sigma_s>
+            <phase_g>0.5</phase_g>
           </glass>
         </technique>
       </extra>
@@ -81,7 +81,7 @@
           <phong>
             <emission><color sid="emission">0 0 0 1</color></emission>
             <ambient><color sid="ambient">0 0 0 1</color></ambient>
-            <diffuse><color sid="diffuse">0.7 0.7 0.7 1</color></diffuse>
+            <diffuse><color sid="diffuse">0.3 0.3 0.3 1</color></diffuse>
             <specular><color sid="specular">0 0 0 1</color></specular>
             <shininess><float sid="shininess">1</float></shininess>
             <index_of_refraction><float sid="ior">1</float></index_of_refraction>
@@ -159,7 +159,7 @@
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
       <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">1 0 0 0 0 1 0 1 0 0 1 2.732 0 0 0 1</matrix>
+        <matrix sid="transform">1 0 0 0 0 1 0 0.8 0 0 1 2.5 0 0 0 1</matrix>
         <instance_camera url="#Camera-camera"/>
       </node>
 
