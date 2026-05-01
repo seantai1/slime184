@@ -9,6 +9,8 @@
 #include "scene/gl_scene/sphere.h"
 #include "scene/gl_scene/mesh.h"
 
+#include <cstdio>
+
 using Collada::CameraInfo;
 using Collada::LightInfo;
 using Collada::MaterialInfo;
@@ -20,6 +22,8 @@ namespace CGL {
 
 Application::Application(AppConfig config, bool gl) {
   gl_window = gl;
+  scene_x_offset = 0.0;
+  scene_y_offset = 0.0;
   renderer = new RaytracedRenderer (
     config.pathtracer_ns_aa,
     config.pathtracer_max_ray_depth,
@@ -157,6 +161,7 @@ void Application::render() {
       if (show_coordinates) draw_coordinates();
     case RENDER_MODE:
       renderer->update_screen();
+      if (show_hud) draw_camera_hud();
       break;
   }
 
@@ -519,6 +524,30 @@ void Application::keyboard_event(int key, int event, unsigned char mods) {
           case 's': case 'S':
             scene->split_selected_edge();
             break;
+          case 'j':
+            translate_scene_y(-canonical_view_distance * 0.02);
+            break;
+          case 'J':
+            translate_scene_y(-canonical_view_distance * 0.10);
+            break;
+          case 'k':
+            translate_scene_y(canonical_view_distance * 0.02);
+            break;
+          case 'K':
+            translate_scene_y(canonical_view_distance * 0.10);
+            break;
+          case 'n':
+            translate_scene_x(-canonical_view_distance * 0.02);
+            break;
+          case 'N':
+            translate_scene_x(-canonical_view_distance * 0.10);
+            break;
+          case 'm':
+            translate_scene_x(canonical_view_distance * 0.02);
+            break;
+          case 'M':
+            translate_scene_x(canonical_view_distance * 0.10);
+            break;
           case 'c': case 'C':
             scene->collapse_selected_edge();
             break;
@@ -640,6 +669,20 @@ void Application::set_up_pathtracer() {
 
 }
 
+void Application::translate_scene_x(double delta) {
+  if (mode != EDIT_MODE || scene == nullptr) return;
+  scene->translate_objects(Vector3D(delta, 0.0, 0.0));
+  scene_x_offset += delta;
+  mouse_moved(mouseX, mouseY);
+}
+
+void Application::translate_scene_y(double delta) {
+  if (mode != EDIT_MODE || scene == nullptr) return;
+  scene->translate_objects(Vector3D(0.0, delta, 0.0));
+  scene_y_offset += delta;
+  mouse_moved(mouseX, mouseY);
+}
+
 Matrix4x4 Application::get_world_to_3DH() {
   Matrix4x4 P, M;
   glGetDoublev(GL_PROJECTION_MATRIX, &P(0, 0));
@@ -720,6 +763,53 @@ void Application::draw_hud() {
     }
   }
 
+  const Vector3D pos = camera.position();
+  const Vector3D target = camera.view_point();
+  const Vector3D dir = camera.view_dir();
+  const Vector3D up = camera.up_dir();
+  char camera_line[256];
+
+  snprintf(camera_line, sizeof(camera_line), "Camera pos: %.3f %.3f %.3f",
+           pos.x, pos.y, pos.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Target: %.3f %.3f %.3f",
+           target.x, target.y, target.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Forward: %.3f %.3f %.3f",
+           dir.x, dir.y, dir.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Up: %.3f %.3f %.3f",
+           up.x, up.y, up.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line),
+           "Orbit phi/theta: %.2f %.2f deg",
+           degrees(camera.orbit_phi()), degrees(camera.orbit_theta()));
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Distance: %.3f  FOV: %.2f x %.2f",
+           camera.distance(), camera.h_fov(), camera.v_fov());
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line),
+           "Scene offset X/Y: %.3f %.3f", scene_x_offset, scene_y_offset);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line),
+           "Move mesh: N/M x, J/K y");
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
   // -- First draw a lovely black rectangle.
 
   glPushAttrib(GL_VIEWPORT_BIT);
@@ -751,6 +841,97 @@ void Application::draw_hud() {
 
   glBegin(GL_QUADS);
 
+  glVertex3f(min_x, min_y, z);
+  glVertex3f(min_x, max_y, z);
+  glVertex3f(max_x, max_y, z);
+  glVertex3f(max_x, min_y, z);
+  glEnd();
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+
+  glPopAttrib();
+
+  glEnable(GL_LIGHTING);
+  glEnable(GL_DEPTH_TEST);
+
+  textManager.render();
+}
+
+void Application::draw_camera_hud() {
+  textManager.clear();
+  messages.clear();
+
+  const size_t size = 16;
+  const float x0 = use_hdpi ? 24 * 2 : 24;
+  const float y0 = use_hdpi ? 64 : 32;
+  const int inc  = use_hdpi ? 48 : 24;
+  float y = y0 + inc - size;
+
+  const Vector3D pos = camera.position();
+  const Vector3D target = camera.view_point();
+  const Vector3D dir = camera.view_dir();
+  char camera_line[256];
+
+  snprintf(camera_line, sizeof(camera_line), "Camera pos: %.3f %.3f %.3f",
+           pos.x, pos.y, pos.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Target: %.3f %.3f %.3f",
+           target.x, target.y, target.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Forward: %.3f %.3f %.3f",
+           dir.x, dir.y, dir.z);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line),
+           "Orbit phi/theta: %.2f %.2f deg",
+           degrees(camera.orbit_phi()), degrees(camera.orbit_theta()));
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Distance: %.3f  FOV: %.2f x %.2f",
+           camera.distance(), camera.h_fov(), camera.v_fov());
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  snprintf(camera_line, sizeof(camera_line), "Scene offset X/Y: %.3f %.3f",
+           scene_x_offset, scene_y_offset);
+  draw_string(x0, y, camera_line, size, text_color);
+  y += inc;
+
+  glPushAttrib(GL_VIEWPORT_BIT);
+  glViewport(0, 0, screenW, screenH);
+
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0, screenW, screenH, 0, 0, 1);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(0, 0, -1);
+
+  glColor4f(0.0, 0.0, 0.0, 0.8);
+
+  float min_x = x0 - 16;
+  float min_y = y0 - 16;
+  float max_x = use_hdpi ? 720 : 360;
+  float max_y = y;
+  float z = 0.0;
+
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+
+  glBegin(GL_QUADS);
   glVertex3f(min_x, min_y, z);
   glVertex3f(min_x, max_y, z);
   glVertex3f(max_x, max_y, z);

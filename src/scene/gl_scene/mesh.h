@@ -60,6 +60,7 @@ class Mesh : public SceneObject, public MeshView {
   void get_selection_info(SelectionInfo *selectionInfo);
 
   void drag_selection(float dx, float dy, const Matrix4x4& worldTo3DH);
+  void translate(const Vector3D& delta);
 
   MeshView *get_mesh_view();
 

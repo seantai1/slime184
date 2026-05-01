@@ -67,7 +67,12 @@ class Camera {
 
   Vector3D position() const { return pos; }
   Vector3D view_point() const { return targetPos; }
+  Vector3D view_dir() const { return (targetPos - pos).unit(); }
   Vector3D up_dir() const { return c2w[1]; }
+  double orbit_phi() const { return phi; }
+  double orbit_theta() const { return theta; }
+  double distance() const { return r; }
+  double h_fov() const { return hFov; }
   double v_fov() const { return vFov; }
   double aspect_ratio() const { return ar; }
   double near_clip() const { return nClip; }

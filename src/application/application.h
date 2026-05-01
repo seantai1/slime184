@@ -133,6 +133,8 @@ private:
 
   void to_edit_mode();
   void set_up_pathtracer();
+  void translate_scene_x(double delta);
+  void translate_scene_y(double delta);
 
   GLScene::Scene *scene;
   OfflineRenderer* renderer;
@@ -152,6 +154,8 @@ private:
 
   // Rate of translation on scrolling.
   double scroll_rate;
+  double scene_x_offset;
+  double scene_y_offset;
 
   /*
     Called whenever the camera fov or screenW/screenH changes.
@@ -226,6 +230,7 @@ private:
   // HUD //
   bool show_hud;
   void draw_hud();
+  void draw_camera_hud();
   inline void draw_string(float x, float y,
     string str, size_t size, const Color& c);
 

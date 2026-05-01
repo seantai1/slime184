@@ -110,6 +110,11 @@ public:
                               const Matrix4x4& modelTo3DH) = 0;
 
   /**
+   * Translates the full object in world space.
+   */
+  virtual void translate(const Vector3D& delta) = 0;
+
+  /**
    * Returns this object as a MeshView if such a conversion is possible,
    * otherwise returns nullptr.
    */
@@ -199,6 +204,11 @@ class Scene {
    * location by (dx, dy).
    */
   void drag_selection(float dx, float dy, const Matrix4x4& worldTo3DH);
+
+  /**
+   * Translates every object in the scene in world space.
+   */
+  void translate_objects(const Vector3D& delta);
 
   /**
    * Returns information about the given selection, or nullptr if there is none.

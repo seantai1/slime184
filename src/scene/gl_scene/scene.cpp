@@ -106,6 +106,12 @@ void Scene::drag_selection(float dx, float dy, const Matrix4x4& worldTo3DH) {
   objects[selectionIdx]->drag_selection(dx, dy, worldTo3DH);
 }
 
+void Scene::translate_objects(const Vector3D& delta) {
+  for (SceneObject *obj : objects) {
+    obj->translate(delta);
+  }
+}
+
 SelectionInfo *Scene::get_selection_info() {
   if (!has_selection()) return nullptr;
   selectionInfo.info.clear();

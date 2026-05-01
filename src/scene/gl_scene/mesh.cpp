@@ -388,6 +388,12 @@ void Mesh::drag_selection(float dx, float dy, const Matrix4x4& worldTo3DH) {
   v->position = pos.to3D();
 }
 
+void Mesh::translate(const Vector3D& delta) {
+  for (VertexIter it = mesh.verticesBegin(); it != mesh.verticesEnd(); it++) {
+    it->position += delta;
+  }
+}
+
 void Mesh::collapse_selected_edge() {
   HalfedgeElement *element = selectedFeature.element;
   if (element == nullptr) return;
