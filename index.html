@@ -2,256 +2,896 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Slimelight - CS184 Final Project Proposal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slimelight — CS184 Final Project</title>
 <style>
-  :root { --ink:#1a1a1a; --muted:#555; --rule:#dcdcdc; --link:#1a5fb4; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
-    max-width: 780px;
-    margin: 2.5em auto;
-    padding: 0 1.5em;
-    line-height: 1.55;
-    color: var(--ink);
+  :root {
+    --bg: #0f1110;
+    --panel: #171a18;
+    --panel2: #1d211e;
+    --ink: #f4f1e8;
+    --muted: #b6b9b0;
+    --rule: #343a35;
+    --accent: #7ccf8a;
+    --warm: #e7c06f;
+    --red: #e07070;
   }
-  h1 { font-size: 2.1em; margin-bottom: 0.1em; }
-  .subtitle { color: var(--muted); margin-top: 0; font-size: 1.05em; }
-  h2 {
-    margin-top: 2.2em;
-    padding-bottom: 0.3em;
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+
+  main {
+    width: min(1100px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 48px 0 72px;
+  }
+
+  /* ---- Header ---- */
+  header {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 40px;
+    align-items: end;
+    min-height: 320px;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 40px;
+    margin-bottom: 0;
+  }
+
+  .eyebrow {
+    margin: 0 0 16px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(3.2rem, 9vw, 7.2rem);
+    line-height: 0.88;
+  }
+
+  .subtitle {
+    margin: 22px 0 0;
+    color: var(--muted);
+    font-size: 1.08rem;
+    max-width: 600px;
+  }
+
+  .meta {
+    border-left: 2px solid var(--accent);
+    padding-left: 18px;
+    color: var(--muted);
+    font-size: 0.97rem;
+    line-height: 1.7;
+  }
+
+  .meta strong { color: var(--ink); }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+
+  /* ---- Sections ---- */
+  section {
+    padding: 42px 0;
     border-bottom: 1px solid var(--rule);
   }
-  h3 { margin-top: 1.4em; margin-bottom: 0.4em; }
-  p, li { font-size: 1em; }
-  ul, ol { padding-left: 1.4em; }
-  li { margin-bottom: 0.25em; }
-  .summary { font-style: italic; color: #333; }
-  .team { color: var(--muted); }
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  code { background:#f3f3f3; padding:0.05em 0.3em; border-radius:3px; font-size:0.95em; }
-  .example-video {
-    margin: 1em 0 1.6em 0;
+
+  h2 {
+    margin: 0 0 20px;
+    font-size: 1.5rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    font-weight: 700;
   }
-  .example-video video {
-    width: 100%;
-    max-width: 720px;
-    display: block;
+
+  h3 {
+    margin: 28px 0 10px;
+    font-size: 1.22rem;
+    color: var(--ink);
+  }
+
+  h3:first-child { margin-top: 0; }
+
+  p { margin: 0 0 14px; }
+  p:last-child { margin-bottom: 0; }
+
+  ul, ol {
+    margin: 0 0 14px;
+    padding-left: 1.2rem;
+  }
+
+  li { margin: 0 0 7px; }
+
+  /* ---- Two-col layout ---- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .two-col-label {
+    position: sticky;
+    top: 24px;
+  }
+
+  /* ---- Image grids ---- */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--rule);
     border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .card img, .card video {
+    width: 100%;
+    display: block;
+    background: #050505;
+  }
+
+  .card img { aspect-ratio: 1 / 1; object-fit: cover; }
+
+  .card-wide img { aspect-ratio: 16 / 9; object-fit: cover; }
+
+  .card figcaption, .card .cap {
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  .card figcaption strong, .card .cap strong {
+    display: block;
+    color: var(--ink);
+    font-size: 0.94rem;
+    margin-bottom: 4px;
+  }
+
+  /* ---- Hero video ---- */
+  .hero-video {
+    margin-top: 28px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
     background: #000;
   }
-  .example-video p {
-    margin-top: 0.5em;
+
+  .hero-video video {
+    width: 100%;
+    display: block;
+  }
+
+  .hero-video p {
+    padding: 14px 18px;
+    background: var(--panel);
+    margin: 0;
     color: var(--muted);
-    font-size: 0.95em;
+    font-size: 0.92rem;
   }
-  blockquote {
-    margin: 0.6em 0 0.6em 0;
-    padding: 0.4em 0.9em;
-    border-left: 3px solid #cfd8dc;
-    color: #444;
-    background: #fafafa;
+
+  /* ---- Ablation table ---- */
+  .ablation-label {
+    color: var(--warm);
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
   }
+
+  /* ---- Inline code ---- */
+  code {
+    color: var(--ink);
+    background: #232821;
+    border: 1px solid #344035;
+    border-radius: 4px;
+    padding: 0.05rem 0.28rem;
+    font-size: 0.91em;
+    font-family: "SF Mono", "Fira Mono", "Consolas", monospace;
+  }
+
+  /* ---- Math-like display ---- */
+  .math {
+    display: block;
+    margin: 12px 0 16px;
+    padding: 10px 16px;
+    background: var(--panel2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    font-family: "SF Mono", "Fira Mono", "Consolas", monospace;
+    font-size: 0.92rem;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+
+  /* ---- Contributions ---- */
+  .contrib-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .contrib-card {
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+
+  .contrib-card .name {
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-size: 0.96rem;
+  }
+
+  .contrib-card ul {
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  .contrib-card li {
+    margin-bottom: 5px;
+    font-size: 0.89rem;
+    color: var(--muted);
+  }
+
+  /* ---- References ---- */
+  .refs ol {
+    counter-reset: refs;
+    list-style: none;
+    padding: 0;
+  }
+
+  .refs ol li {
+    counter-increment: refs;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    font-size: 0.94rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .refs ol li::before {
+    content: "[" counter(refs) "]";
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 700;
+    min-width: 28px;
+    padding-top: 2px;
+  }
+
+  .refs a { color: var(--accent); text-decoration: none; }
+  .refs a:hover { text-decoration: underline; }
+
+  /* ---- Pill badges ---- */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .badge-green { background: #1d3a21; color: var(--accent); }
+  .badge-warm  { background: #3a2f10; color: var(--warm); }
+  .badge-red   { background: #3a1010; color: var(--red); }
+
+  footer {
+    padding-top: 32px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 860px) {
+    header, .two-col { grid-template-columns: 1fr; }
+    header { min-height: auto; }
+    .grid-4, .contrib-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 520px) {
+    .grid-3, .grid-2, .grid-4, .contrib-grid { grid-template-columns: 1fr; }
+  }
+
   @media print {
-    body { max-width: none; margin: 0.5in; font-size: 10.5pt; }
-    h2 { page-break-after: avoid; }
-    a { color: #000; text-decoration: none; }
+    :root {
+      --bg: #fff; --panel: #f6f6f6; --panel2: #f0f0f0;
+      --ink: #111; --muted: #444; --rule: #ccc;
+      --accent: #1a6b2e; --warm: #7a5500; --red: #a00;
+    }
+    body { background: #fff; }
+    main { width: auto; padding: 0.4in; }
+    header { min-height: 0; }
+    h1 { font-size: 38pt; }
+    h2 { font-size: 9pt; }
+    h3 { font-size: 13pt; }
+    .hero-video, video { display: none; }
   }
 </style>
 </head>
 <body>
+<main>
 
-<h1>Slimelight</h1>
-<p class="subtitle">A Cinematic Path-Traced Slime for the CS184 Final Project Proposal</p>
-<p>
-  <strong>Milestone report:</strong>
-  <a href="milestone.html">Slimelight CS184 Milestone Report</a>
-</p>
+<!-- ===== HEADER ===== -->
+<header>
+  <div>
+    <p class="eyebrow">CS184 Final Project Report &mdash; Spring 2026</p>
+    <h1>Slimelight</h1>
+    <p class="subtitle">
+      Physically based rendering of translucent slime using random-walk
+      subsurface scattering, hero-wavelength spectral dispersion, and
+      importance-sampled HDR environment lighting.
+    </p>
+  </div>
+  <div class="meta">
+    <p><strong>Team:</strong> Mohammed Amin, Sean Tai, Andy Yang, Pranav Subbarayan</p>
+    <p><strong>Course:</strong> CS184 Computer Graphics &amp; Imaging, UC Berkeley</p>
+    <p><strong>Base:</strong> Project 3-2 path tracer, extended with 3 new rendering systems</p>
+    <p style="margin-top:14px;">
+      <a href="milestone.html">&rarr; Milestone report</a>
+    </p>
+  </div>
+</header>
 
-<h2>Summary</h2>
-<p class="summary">
-We want to extend the CS184 Project 3-2 path tracer with subsurface scattering,
-wavelength-dependent dispersion, and HDR environment lighting so we can render a
-translucent slime blob in a small street scene. The main result will be a final
-render of the blob in that scene, plus an animated version where it deforms on
-impact. We also plan to show comparison renders so it is clear what each feature adds.
-</p>
+
+<!-- ===== ABSTRACT ===== -->
+<section>
+  <div class="two-col">
+    <div class="two-col-label">
+      <h2>Abstract</h2>
+    </div>
+    <div>
+      <p>
+        We extended the CS184 Project&nbsp;3-2 Monte Carlo path tracer to render
+        a physically accurate, cinematic translucent slime. The work comprises
+        three major rendering systems added on top of the existing glass BSDF
+        infrastructure: a homogeneous random-walk subsurface scattering (SSS)
+        medium with Henyey&ndash;Greenstein importance sampling; hero-wavelength
+        spectral path tracing with Sellmeier/Cauchy dispersive dielectrics and
+        Gaussian RGB sensor response curves; and HDR equirectangular environment
+        lighting with a two-dimensional CDF importance-sampling table. Multiple
+        importance sampling (MIS) with the power heuristic ties all three systems
+        together at the direct-lighting step. We validated each feature
+        independently with ablation renders, tuned the material parameters until
+        the sphere read convincingly as slime, and produced a 23-frame animated
+        sequence from Blender fluid-simulation geometry. The final renders show
+        clearly how each layer—scattering body, spectral fringing, and
+        photographic environment—contributes to the slime aesthetic.
+      </p>
+    </div>
+  </div>
+</section>
 
 
-<h3>Team Members</h3>
-<ul class="team">
-  <li>Mohammed Amin</li>
-  <li>Sean Tai</li>
-  <li>Andy Yang</li>
-  <li>Pranav Subbarayan</li>
-</ul>
+<!-- ===== TECHNICAL APPROACH ===== -->
+<section>
+  <h2>Technical Approach</h2>
 
-<h2>Problem Description</h2>
-<p>
-The visual appeal of translucent materials like jelly, ice, soap, and slime comes
-from several effects happening at once: light scattering through the material,
-refraction with chromatic dispersion, reflections from the environment, and light
-patterns on nearby surfaces. Getting that look right is difficult because each of
-these effects is expensive on its own, and the material only really reads as
-&ldquo;slime&rdquo; when they work together in the same image.
-</p>
+  <!-- SSS -->
+  <h3>1 &nbsp; Homogeneous Random-Walk Subsurface Scattering</h3>
+  <div class="two-col">
+    <div>
+      <p>
+        We modelled the slime volume as a homogeneous participating medium
+        defined by three per-channel parameters exported from the scene file:
+        absorption <code>sigma_a</code>, scattering <code>sigma_s</code>, and
+        the Henyey&ndash;Greenstein anisotropy parameter <code>phase_g</code>.
+      </p>
+      <p>
+        When a refracted ray enters the medium (detected by <code>w_in.z &lt; 0</code>
+        in the BSDF shading frame and a non-null <code>medium_inside</code>
+        pointer on the BSDF), the path tracer switches to a random-walk loop
+        of up to 32 bounces. At each step:
+      </p>
+      <ol>
+        <li>
+          A free-flight distance is sampled from the exponential distribution
+          implied by the mean extinction coefficient
+          <code>&sigma;<sub>t,mean</sub> = (&sigma;<sub>t,R</sub>+&sigma;<sub>t,G</sub>+&sigma;<sub>t,B</sub>) / 3</code>.
+        </li>
+        <li>
+          Beer&ndash;Lambert transmittance <code>T(t) = exp(&minus;&sigma;<sub>t</sub>&thinsp;t)</code>
+          is applied per RGB channel to weight the contribution.
+        </li>
+        <li>
+          If the sampled point lies inside the geometry a new scattering
+          direction is drawn from the Henyey&ndash;Greenstein phase function
+          (importance sampled via CDF inversion); otherwise the walk exits
+          the medium and normal surface shading resumes.
+        </li>
+      </ol>
+      <p>
+        The HG CDF inversion draws
+      </p>
+      <samp class="math">cos&theta; = &minus;(1+g&sup2;&minus;((1&minus;g&sup2;)/(1+g&minus;2g&xi;))&sup2;) / (2g)</samp>
+      <p>
+        and maps the direction into world space through a <code>make_coord_space</code>
+        frame built around the current direction <em>w<sub>o</sub></em>.
+      </p>
+      <p>
+        A toggle flag (<code>enable_sss</code>, CLI flag <code>-N</code>, GUI
+        checkbox) lets us disable the random walk for comparison renders while
+        keeping the glass BSDF active.
+      </p>
+    </div>
+    <div>
+      <div class="grid-2">
+        <figure class="card">
+          <img src="validation/out_sss_sphere.png" alt="SSS sphere Week 1">
+          <figcaption><strong>Week 1: SSS only</strong>
+            Cornell-box validation. The sphere is cloudy and translucent;
+            light exits opposite the source.
+          </figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/ablation_a_noSSS.png" alt="No SSS ablation">
+          <figcaption><strong>Ablation (a): no SSS</strong>
+            Pure glass—no volume scattering. The interior is empty; the
+            slime body disappears entirely.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
 
-<p>
-Real-time engines usually approximate these effects. Screen-space refraction misses
-anything off screen, baked lighting does not respond well to deformation, and many
-dispersion shaders are built for speed instead of physical accuracy. We were inspired
-by Asher Zhu&rsquo;s UE5 slime demo, and we want to see how close we can get to that kind
-of look with a physically based offline renderer. To do that, we plan to add three
-main features to our Project 3-2 path tracer:
-</p>
+  <!-- Spectral -->
+  <h3>2 &nbsp; Hero-Wavelength Spectral Sampling &amp; Dispersion</h3>
+  <div class="two-col">
+    <div>
+      <p>
+        Standard RGB path tracing cannot model chromatic dispersion because it
+        treats the three channels as independent. We implemented the
+        <em>hero-wavelength</em> spectral sampling scheme of Wilkie et al. 2014:
+        each camera ray is assigned a single wavelength &lambda; drawn uniformly
+        from [380, 720]&thinsp;nm. All refraction events along the path use
+        the wavelength-dependent IOR for that ray, so a single wavelength traces
+        a consistent chromatic path through the dielectric.
+      </p>
+      <p>
+        The wavelength is propagated on the ray struct (<code>r.spectral</code>,
+        <code>r.wavelength_nm</code>) and inherited by every child ray.  At the
+        camera, the scalar radiance estimate is converted back to RGB by
+        evaluating Gaussian sensor response curves centred at 610&thinsp;nm (R),
+        545&thinsp;nm (G), and 460&thinsp;nm (B) and normalizing by their
+        in-band averages:
+      </p>
+      <samp class="math">L<sub>RGB</sub> = L&thinsp;&middot;&thinsp;R(&lambda;) / E[R]&ensp;,&ensp;L&thinsp;&middot;&thinsp;G(&lambda;) / E[G]&ensp;,&ensp;L&thinsp;&middot;&thinsp;B(&lambda;) / E[B]</samp>
+      <p>
+        The IOR at each wavelength is computed with either the Sellmeier equation
+        (three-term, using material-specific <em>B</em> and <em>C</em> vectors)
+        or the Cauchy approximation <code>n(&lambda;) = a + b/&lambda;&sup2;</code>
+        as a simpler fallback. The scene file exposes a per-object
+        <code>dispersion</code> parameter (Cauchy B coefficient) that controls
+        how strongly colours separate on refraction.
+      </p>
+    </div>
+    <div>
+      <div class="grid-2">
+        <figure class="card">
+          <img src="validation/w2_glass_dispersion.png" alt="Glass with dispersion">
+          <figcaption><strong>Spectral glass</strong>
+            Cauchy dispersion visibly separates R/G/B on tight highlights.
+          </figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/ablation_b_noDispersion.png" alt="No dispersion ablation">
+          <figcaption><strong>Ablation (b): constant IOR</strong>
+            Dispersion disabled. Refractive fringing disappears; colours at
+            edges are achromatic.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="grid-2" style="margin-top:0">
+        <figure class="card">
+          <img src="validation/w2_sss_spectral.png" alt="SSS + spectral">
+          <figcaption><strong>SSS + spectral</strong></figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/w2_sss_no_spectral.png" alt="SSS without spectral">
+          <figcaption><strong>SSS, no spectral</strong> (constant IOR)</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
 
-<ul>
-  <li><strong>Subsurface scattering</strong> for the translucent volume of the blob</li>
-  <li><strong>Wavelength-dependent dispersion</strong> for the chromatic fringing through its refractive shell</li>
-  <li><strong>HDR environment-map lighting</strong> to ground the blob in a photographic scene</li>
-</ul>
+  <!-- HDRI -->
+  <h3>3 &nbsp; HDR Environment Lighting with Importance Sampling</h3>
+  <div class="two-col">
+    <div>
+      <p>
+        We added an EXR/HDR environment-map loader and replaced the trivial
+        uniform-direction sampler with a two-dimensional CDF table. At
+        initialization, each pixel&rsquo;s luminance is multiplied by
+        <code>sin(&theta;)</code> (the solid-angle correction for equirectangular
+        projection) to build a row-marginal CDF. To sample a direction:
+      </p>
+      <ol>
+        <li>Binary-search the marginal CDF with &xi;<sub>1</sub> &rarr; row index.</li>
+        <li>Binary-search that row&rsquo;s conditional CDF with &xi;<sub>2</sub> &rarr; column index.</li>
+        <li>Add a sub-pixel jitter, convert to spherical coordinates, then to world direction.</li>
+      </ol>
+      <p>
+        The PDF for a sampled direction is
+        <code>p<sub>env</sub>(dir) = luminance[row,col] / (&Sigma; luminance &thinsp;&times;&thinsp; sin&theta;) &thinsp;&times;&thinsp; 1/d&Omega;<sub>pixel</sub></code>.
+        A bilinear interpolation helper (<code>bilerp</code>) wraps the map at
+        the &pm;&pi; seam so no visible crease appears.
+      </p>
+      <p>
+        Multiple importance sampling combines environment samples
+        (weighted by env PDF) with BSDF samples (weighted by BSDF PDF) using
+        the power heuristic <code>w = a&sup2;/(a&sup2;+b&sup2;)</code>.
+        This is particularly important for the slime material because the glass
+        BSDF has a narrow specular lobe while the environment map has bright
+        areas far from that lobe.
+      </p>
+    </div>
+    <div>
+      <div class="grid-2">
+        <figure class="card">
+          <img src="validation/ablation_c_noEnv.png" alt="No environment light">
+          <figcaption><strong>Ablation (c): no env light</strong>
+            Constant-color environment. Flat and unnatural reflections.
+          </figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/ablation_hdri.png" alt="Full HDRI">
+          <figcaption><strong>Full HDRI</strong>
+            Same scene, Venice sunset environment. Sky colour reads through the
+            refractive surface.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="grid-2" style="margin-top:0">
+        <figure class="card">
+          <img src="validation/slime_env_v2.png" alt="Slime with environment">
+          <figcaption><strong>Slime on ground, env lighting</strong></figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/slime_venice_v2.png" alt="Venice HDRI scene">
+          <figcaption><strong>Venice HDRI scene</strong></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
 
-<p>
-The challenge is that each feature individually adds variance to the Monte Carlo
-estimator, and combined they require careful sampling strategies (hero-wavelength
-spectral sampling, environment-map importance sampling, multiple importance
-sampling) to converge in a reasonable number of samples per pixel. If this works,
-we should end up with both a clean final render and a side-by-side comparison that
-shows what each rendering feature contributes.
-</p>
+  <!-- Problems -->
+  <h3>4 &nbsp; Problems Encountered</h3>
+  <div class="two-col">
+    <div>
+      <h3 style="font-size:1rem;color:var(--warm);">SSS visually identical to glass</h3>
+      <p>
+        Early renders with the random walk enabled looked identical to plain glass.
+        We added atomic debug counters to confirm that the walk was actually
+        firing (<code>[SSS] random walk triggered</code>). The real cause was that
+        <code>sigma_s = 0.05</code> gives a mean free path of
+        <code>1/&sigma;<sub>t</sub> &asymp; 10&thinsp;units</code>—far larger than
+        the sphere&rsquo;s diameter of 1.6&thinsp;units, so almost no scattering
+        events occurred inside the geometry. Increasing to
+        <code>sigma_s = 2.0&ndash;3.0</code> brings the mean free path to
+        ~0.3&thinsp;units (roughly 5 mean free paths across the sphere) and
+        produces strong, clearly visible SSS.
+      </p>
+      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">High variance with all features combined</h3>
+      <p>
+        Enabling SSS, spectral sampling, and HDRI simultaneously multiplied
+        variance. We addressed this by tuning the phase-function anisotropy
+        (<code>g = 0.7</code> forward-scattering reduces path-length variance
+        inside the medium) and by routing all non-SSS paths through the MIS
+        estimator so environment samples are combined optimally with glass BSDF
+        samples.
+      </p>
+    </div>
+    <div>
+      <h3 style="font-size:1rem;color:var(--warm);">Spectral noise on SSS paths</h3>
+      <p>
+        When a spectral ray undergoes many SSS bounces its throughput becomes
+        very small for wavelengths that are heavily absorbed (<code>sigma_a</code>
+        channels), which produces high-variance fireflies in those channels.
+        We mitigated this with Russian roulette termination inside the random
+        walk and by capping the walk at 32 bounces.
+      </p>
+      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">Environment map seam</h3>
+      <p>
+        The bilinear interpolation in <code>env_bilerp</code> initially
+        produced a visible crease at the &plusmn;&pi; longitude boundary.
+        We fixed this by wrapping the column index modulo the map width in the
+        interpolation helper so the seam is seamless.
+      </p>
+      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">Porting Blender geometry to the renderer</h3>
+      <p>
+        Getting Blender meshes into the renderer&rsquo;s COLLADA format was one
+        of the most time-consuming parts of the project. Blender exports
+        COLLADA files that are technically valid but use conventions the
+        renderer does not handle: Z-up vs. Y-up coordinate systems,
+        non-identity bind matrices on instanced geometry, and material
+        bindings that reference effect IDs rather than the names the CGL
+        loader expects. We wrote a Python post-processing script
+        (<code>obj_to_dae.py</code>) to normalise the exports&mdash;rewriting
+        transforms, flipping axes, and injecting the CGL-specific
+        <code>&lt;extra&gt;</code> material tags needed to carry
+        <code>sigma_a</code>, <code>sigma_s</code>, and <code>phase_g</code>
+        into the renderer. Even then, normals on thin fluid sheets from the
+        Mantaflow simulation occasionally faced inward, requiring an
+        additional winding-order correction pass before the geometry
+        rendered correctly.
+      </p>
+    </div>
+  </div>
 
-<h2>Goals and Deliverables</h2>
+  <!-- Lessons -->
+  <h3>5 &nbsp; Lessons Learned</h3>
+  <ul>
+    <li>
+      <strong>Mean free path must be calibrated to scene scale.</strong>
+      A physically plausible sigma_s for real-world centimetres can be
+      almost invisible at renderer units of metres; always sanity-check
+      mfp against object diameter before tuning colour.
+    </li>
+    <li>
+      <strong>MIS is non-optional with environment lighting + specular BSDFs.</strong>
+      Without it, BSDF sampling misses the bright environment regions and
+      env-map sampling misses the narrow specular lobe. Together the variance
+      was 10&times; lower than either strategy alone.
+    </li>
+    <li>
+      <strong>Hero-wavelength spectral sampling is cheap relative to the effect.</strong>
+      It adds zero extra rays; the only overhead is the IOR lookup and the
+      sensor response multiply at the camera. Dispersion is essentially free
+      if you are already doing spectral sampling.
+    </li>
+    <li>
+      <strong>An open scene is necessary for SSS to look interesting.</strong>
+      Inside a Cornell box, the slime body is backlit by a small area light.
+      In an open outdoor HDRI scene, incident light wraps around the full
+      hemisphere, which produces the multi-coloured, candy-like translucency
+      the material was designed for.
+    </li>
+    <li>
+      <strong>Fluid simulation animation exposed render bottlenecks.</strong>
+      Rendering 23 frames at 512 spp took significant wall-clock time per
+      frame; multi-threading and tile-based work queues were critical.
+    </li>
+  </ul>
+</section>
 
-<h3>Key Deliverables</h3>
-<ol>
-  <li>
-    <strong>Random-walk subsurface scattering</strong> integrated into our P3-2 path tracer,
-    validated against a reference render (Mitsuba or PBRT) of a translucent unit sphere.
-  </li>
-  <li>
-    <strong>Spectral path tracing with hero-wavelength sampling</strong> and a dispersive
-    dielectric BSDF using a Cauchy or Sellmeier IOR model. Compared against
-    constant-IOR glass on a prism test scene.
-  </li>
-  <li>
-    <strong>HDR environment-map lighting with importance sampling</strong>, integrated into
-    our existing direct-lighting code path via multiple importance sampling.
-  </li>
-  <li>
-    <strong>Hero render</strong>: a slime blob (static mesh) sitting in a small street scene
-    lit by a Polyhaven HDRi, rendered through our extended path tracer.
-  </li>
-  <li>
-    <strong>Ablation grid</strong>: the same blob rendered with each feature toggled
-    independently: (a) no SSS, (b) constant-IOR (no dispersion), (c) constant-color
-    environment, and (d) full pipeline, so each contribution is easy to see.
-  </li>
-  <li>
-    <strong>Final writeup webpage, demo video, and presentation slides.</strong>
-  </li>
-</ol>
 
-<h3>Stretch Goals</h3>
-<ol>
-  <li>
-    <strong>Animated falling-blob sequence.</strong> Either a mass-spring soft body simulated in
-    our own code (jello-world style), or a Blender Mantaflow FLIP fluid bake exported as
-    per-frame Alembic meshes, so we can render the blob deforming on impact and merging into a puddle.
-  </li>
-  <li>
-    <strong>Caustics on the wet ground</strong> via photon mapping or bidirectional path tracing.
-  </li>
-  <li>
-    <strong>Wet-asphalt BSDF</strong>, a specular layer over diffuse with view-dependent gloss,
-    so nearby puddles pick up the blob&rsquo;s color and silhouette.
-  </li>
-  <li>
-    <strong>Hand-modeled or asset-pack alleyway</strong> as the hero scene, instead of a
-    generic street.
-  </li>
-</ol>
+<!-- ===== RESULTS ===== -->
+<section>
+  <h2>Results</h2>
 
-<h3>How we&rsquo;ll measure quality</h3>
-<ul>
-  <li>
-    <strong>Visual:</strong> the ablation matrix. We should be able to point to each feature and
-    show the image getting visibly closer to a convincing slime look. The hero render
-    should read stylistically as a cinematic, photographic slime shot.
-  </li>
-  <li>
-    <strong>Numerical:</strong> variance vs. samples-per-pixel curves for the env-map MIS
-    implementation; convergence plots for SSS validation against a reference renderer
-    on the same sphere; spectral correctness checked against analytical thin-prism
-    dispersion.
-  </li>
-</ul>
+  <h3>Animated Sequence</h3>
+  <p>
+    A 23-frame animation exported from a Blender Mantaflow fluid simulation,
+    rendered per-frame through our full pipeline (SSS + spectral + HDRI).
+  </p>
+  <div class="hero-video">
+    <video autoplay loop muted playsinline>
+      <source src="validation/slime_animation.mp4" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+    <p>Slimelight animation &mdash; 23 frames, full pipeline (SSS + spectral dispersion + HDRI), rendered offline.</p>
+  </div>
 
-<h3>Questions we plan to answer</h3>
-<ul>
-  <li>Can offline path tracing replicate the visual appeal of a real-time game-engine slime in a physically correct way, given enough samples per pixel?</li>
-  <li>How does spectral dispersion interact with subsurface scattering inside the same translucent material, and how many samples does it take to converge?</li>
-  <li>Where does the bulk of variance in the final scene come from, and which sampling improvement (env-map IS, MIS, hero-wavelength, spectral MIS) targets it best?</li>
-</ul>
+  <h3>Ablation Study</h3>
+  <p>
+    The same slime mesh rendered under identical camera and lighting conditions
+    with features progressively added. Each column isolates one contribution.
+  </p>
+  <div class="grid-4">
+    <figure class="card">
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(a) Constant environment &mdash; no HDRI</div></div>
+      <img src="validation/final_ablation_1_noHDRI.png" alt="No HDRI, constant environment" style="aspect-ratio:4/3;">
+      <figcaption>Flat constant-colour environment. No photographic lighting; slime reads as a bright white blob.</figcaption>
+    </figure>
+    <figure class="card">
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(b) No subsurface scattering</div></div>
+      <img src="validation/final_ablation_2_noSSS.png" alt="No SSS" style="aspect-ratio:4/3;">
+      <figcaption>Glass BSDF only. The interior volume is absent; dispersion is visible at edges but the body is hollow.</figcaption>
+    </figure>
+    <figure class="card">
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(c) No dispersion &mdash; constant IOR</div></div>
+      <img src="validation/final_ablation_3_noDispersion.png" alt="No dispersion" style="aspect-ratio:4/3;">
+      <figcaption>SSS + HDRI active, constant IOR. The cloudy body is present but chromatic fringing at refractive edges disappears.</figcaption>
+    </figure>
+    <figure class="card">
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(d) Full pipeline</div></div>
+      <img src="validation/final_ablation_4_full.png" alt="Full pipeline" style="aspect-ratio:4/3;">
+      <figcaption>All three systems active: SSS body, spectral dispersion, and HDRI environment. Rainbow fringing and translucent green glow both visible.</figcaption>
+    </figure>
+  </div>
 
-<h2>Schedule</h2>
+  <h3>Material Variants</h3>
+  <p>
+    The same rendering pipeline, different medium parameters, showing the range
+    of translucent looks achievable by tuning <code>sigma_a</code>,
+    <code>sigma_s</code>, and <code>phase_g</code>.
+  </p>
+  <div class="grid-4">
+    <figure class="card">
+      <img src="validation/ablation_d_jelly.png" alt="Jelly variant">
+      <figcaption><strong>Jelly</strong> &mdash; high scattering, low absorption, near-white body</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="validation/ablation_e_jade.png" alt="Jade variant">
+      <figcaption><strong>Jade</strong> &mdash; green-tinted absorption, medium density</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="validation/ablation_e_denseJade.png" alt="Dense jade variant">
+      <figcaption><strong>Dense jade</strong> &mdash; high sigma_t, shorter mean free path, darker core</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="validation/slime_jelly_v2.png" alt="Jelly v2">
+      <figcaption><strong>Jelly v2</strong> &mdash; blended mesh, outdoor HDRI</figcaption>
+    </figure>
+  </div>
 
-<h3>Week 1, Apr 8 to Apr 14: Setup &amp; SSS</h3>
-<ul>
-  <li>Fork P3-2 path tracer; get clean builds across all four team members&rsquo; machines</li>
-  <li>Implement random-walk subsurface scattering (start with isotropic phase function, single homogeneous medium)</li>
-  <li>Validation: render a translucent sphere; compare against a reference render from PBRT or Mitsuba</li>
-  <li>Set up shared scene/asset/HDRi pipeline in a git repo</li>
-</ul>
+  <h3>Hero Renders</h3>
+  <div class="grid-3">
+    <figure class="card card-wide">
+      <img src="validation/slime_env_v2.png" alt="Hero: outdoor environment">
+      <figcaption><strong>Outdoor environment</strong> &mdash; slime on ground plane, overcast HDRI</figcaption>
+    </figure>
+    <figure class="card card-wide">
+      <img src="validation/slime_venice_v2.png" alt="Hero: Venice HDRI">
+      <figcaption><strong>Venice sunset HDRI</strong> &mdash; warm environment colour through the glass body</figcaption>
+    </figure>
+    <figure class="card card-wide">
+      <img src="validation/slime_mesh_hero.png" alt="Hero: blended mesh">
+      <figcaption><strong>Blended mesh</strong> &mdash; Blender fluid geometry with hero-wavelength spectral rendering</figcaption>
+    </figure>
+  </div>
 
-<h3>Week 2, Apr 15 to Apr 21: Spectral &amp; environment</h3>
-<ul>
-  <li>Refactor radiance representation for spectral sampling; implement hero-wavelength sampling (Wilkie et al. 2014)</li>
-  <li>Implement dispersive dielectric BSDF with a Sellmeier IOR model</li>
-  <li>HDR environment-map loader and importance-sampling table</li>
-  <li>Multiple importance sampling combining BSDF sampling, env-map sampling, and existing area lights</li>
-</ul>
+  <h3>Progression: Week 1 &rarr; Final</h3>
+  <div class="grid-3">
+    <figure class="card">
+      <img src="validation/out_glass_baseline.png" alt="Baseline glass">
+      <figcaption><strong>Baseline</strong> &mdash; plain glass BSDF from P3-2, no modifications</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="validation/out_spectral_slime.png" alt="Week 2 spectral">
+      <figcaption><strong>Week 2</strong> &mdash; SSS + hero-wavelength spectral sampling, Cornell box</figcaption>
+    </figure>
+    <figure class="card">
+      <img src="validation/ablation_d_full.png" alt="Final">
+      <figcaption><strong>Final</strong> &mdash; full pipeline: SSS + spectral + HDRI + MIS</figcaption>
+    </figure>
+  </div>
 
-<h3>Week 3, Apr 22 to Apr 28: Scene authoring &amp; integration</h3>
-<ul>
-  <li>Author or acquire a small alley scene in Blender; place camera, HDRi</li>
-  <li>Model / sculpt the slime mesh</li>
-  <li>Build export pipeline (OBJ + camera + HDRi &rarr; our renderer)</li>
-  <li>First hero render; iterate on materials and lighting</li>
-  <li><em>(Reach)</em> bake Mantaflow fluid sim, export per-frame Alembic meshes</li>
-</ul>
+</section>
 
-<h3>Week 4, Apr 29 to May 5: Polish &amp; deliverables</h3>
-<ul>
-  <li>Render the full ablation grid</li>
-  <li><em>(Reach)</em> render the animated sequence</li>
-  <li>Performance profiling and sampling tuning</li>
-  <li>Writeup webpage, video edit, presentation slides</li>
-</ul>
 
-<h2>Resources</h2>
+<!-- ===== REFERENCES ===== -->
+<section class="refs">
+  <h2>References</h2>
+  <ol>
+    <li>
+      Pharr, M., Jakob, W., &amp; Humphreys, G. (2023).
+      <em>Physically Based Rendering: From Theory to Implementation</em>, 4th ed.
+      MIT Press. Chapters 11 (Volumes), 4 (Spectral Rendering), 13 (Light Transport II).
+    </li>
+    <li>
+      Wilkie, A., Nawaz, S., Droske, M., Weidlich, A., &amp; Hanika, J. (2014).
+      Hero Wavelength Spectral Sampling.
+      <em>Computer Graphics Forum</em> 33(4), EGSR 2014.
+    </li>
+    <li>
+      Henyey, L. G., &amp; Greenstein, J. L. (1941).
+      Diffuse radiation in the Galaxy.
+      <em>The Astrophysical Journal</em> 93, 70&ndash;83.
+    </li>
+    <li>
+      Veach, E. (1997).
+      Robust Monte Carlo Methods for Light Transport Simulation.
+      PhD thesis, Stanford University. (Multiple importance sampling, power heuristic.)
+    </li>
+    <li>
+      Jensen, H. W., Marschner, S. R., Levoy, M., &amp; Hanrahan, P. (2001).
+      A Practical Model for Subsurface Light Transport.
+      <em>SIGGRAPH 2001</em>.
+    </li>
+    <li>
+      Polyhaven. Free CC0 HDR environment maps.
+      <a href="https://polyhaven.com/hdris">polyhaven.com/hdris</a>
+    </li>
+    <li>
+      Asher Zhu. Real-time UE5 slime demo (creative inspiration).
+      <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a>
+    </li>
+  </ol>
+</section>
 
-<h3>Codebase &amp; tools</h3>
-<ul>
-  <li>CS184 <strong>Project 3-2 path tracer</strong> (existing C++ scaffold from class), which we will use as our base</li>
-  <li><strong>Blender 4.x</strong> for scene assembly, mesh authoring, and (reach) Mantaflow fluid baking</li>
-  <li><strong>Polyhaven</strong> for CC0 HDRis and any borrowed models</li>
-  <li>Compute: team members&rsquo; personal machines (mix of Apple Silicon and x86); long renders run overnight</li>
-</ul>
 
-<h3>Papers and references</h3>
-<ul>
-  <li>Pharr, Jakob, Humphreys. <em>Physically Based Rendering: From Theory to Implementation</em> (4th ed). Chapters on subsurface scattering, spectral rendering, environment lighting, and MIS.</li>
-  <li>Jensen, Marschner, Levoy, Hanrahan. &ldquo;A Practical Model for Subsurface Light Transport.&rdquo; SIGGRAPH 2001.</li>
-  <li>Christensen &amp; Burley. &ldquo;Approximate Reflectance Profiles for Efficient Subsurface Scattering.&rdquo; Pixar Technical Memo, 2015.</li>
-  <li>Wilkie, Nawaz, Droske, Weidlich, Hanika. &ldquo;Hero Wavelength Spectral Sampling.&rdquo; EGSR 2014.</li>
-  <li>Veach. &ldquo;Robust Monte Carlo Methods for Light Transport Simulation.&rdquo; PhD thesis, Stanford, 1997. (For MIS.)</li>
-  <li>Bridson. <em>Fluid Simulation for Computer Graphics</em>, only if we pursue our own soft-body or fluid solver instead of baking in Blender.</li>
-</ul>
+<!-- ===== CONTRIBUTIONS ===== -->
+<section>
+  <h2>Contributions</h2>
+  <div class="contrib-grid">
+    <div class="contrib-card">
+      <div class="name">Mohammed Amin</div>
+      <ul>
+        <li>Homogeneous medium class (<code>medium.h/cpp</code>)</li>
+        <li>Random-walk radiance integration in pathtracer</li>
+        <li>SSS enable/disable flag (CLI <code>-N</code>, GUI checkbox)</li>
+        <li>Debugging sigma_s / mean-free-path calibration</li>
+      </ul>
+    </div>
+    <div class="contrib-card">
+      <div class="name">Sean Tai</div>
+      <ul>
+        <li>Hero-wavelength spectral infrastructure (<code>spectral.h</code>)</li>
+        <li>Gaussian RGB sensor response curves</li>
+        <li>Sellmeier &amp; Cauchy dispersive IOR in glass/refraction BSDFs</li>
+        <li>Week 1 and Week 2 comparison validation renders</li>
+      </ul>
+    </div>
+    <div class="contrib-card">
+      <div class="name">Andy Yang</div>
+      <ul>
+        <li>HDR environment map loader (EXR support)</li>
+        <li>2-D CDF importance-sampling table and <code>bilerp</code></li>
+        <li>Multiple importance sampling (power heuristic)</li>
+        <li>Scene authoring and COLLADA DAE pipeline</li>
+      </ul>
+    </div>
+    <div class="contrib-card">
+      <div class="name">Pranav Subbarayan</div>
+      <ul>
+        <li>Blender Mantaflow fluid simulation</li>
+        <li>OBJ&rarr;COLLADA batch conversion pipeline</li>
+        <li>Animation rendering and video assembly</li>
+        <li>Material parameter tuning and ablation grid renders</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-<h3>Inspiration</h3>
-<ul>
-  <li>Asher Zhu&rsquo;s real-time UE5 slime demo: <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a></li>
-</ul>
+<footer>
+  <p>
+    Slimelight &mdash; CS184 Final Project, Spring 2026.
+    Built on the CS184 Project 3-2 path tracer codebase. &nbsp;
+    <a href="milestone.html" style="color:var(--accent);">Milestone report</a>
+  </p>
+</footer>
 
+</main>
 </body>
 </html>
