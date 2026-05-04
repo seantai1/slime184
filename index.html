@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Slimelight — CS184 Final Project</title>
+<title>Slimelight - CS184 Final Project</title>
 <style>
   :root {
     --bg: #0f1110;
@@ -188,7 +188,8 @@
     background: #000;
   }
 
-  .hero-video video {
+  .hero-video video,
+  .hero-video img {
     width: 100%;
     display: block;
   }
@@ -230,10 +231,18 @@
     background: var(--panel2);
     border-left: 3px solid var(--accent);
     border-radius: 0 6px 6px 0;
-    font-family: "SF Mono", "Fira Mono", "Consolas", monospace;
-    font-size: 0.92rem;
+    font-family: "Times New Roman", Georgia, serif;
+    font-style: italic;
+    font-size: 1.05rem;
     color: var(--ink);
     overflow-x: auto;
+  }
+
+  .sym {
+    font-family: "Times New Roman", Georgia, serif;
+    font-style: italic;
+    color: var(--ink);
+    white-space: nowrap;
   }
 
   /* ---- Contributions ---- */
@@ -355,7 +364,7 @@
 <!-- ===== HEADER ===== -->
 <header>
   <div>
-    <p class="eyebrow">CS184 Final Project Report &mdash; Spring 2026</p>
+    <p class="eyebrow">CS184 Final Project Report, Spring 2026</p>
     <h1>Slimelight</h1>
     <p class="subtitle">
       Physically based rendering of translucent slime using random-walk
@@ -366,9 +375,16 @@
   <div class="meta">
     <p><strong>Team:</strong> Mohammed Amin, Sean Tai, Andy Yang, Pranav Subbarayan</p>
     <p><strong>Course:</strong> CS184 Computer Graphics &amp; Imaging, UC Berkeley</p>
-    <p><strong>Base:</strong> Project 3-2 path tracer, extended with 3 new rendering systems</p>
+    <p><strong>Base:</strong> Homework 3 path tracer, extended with 3 new rendering systems</p>
     <p style="margin-top:14px;">
-      <a href="milestone.html">&rarr; Milestone report</a>
+      Milestone:
+      <a href="https://slimelight-milestone.vercel.app/">https://slimelight-milestone.vercel.app/</a>
+      <br>
+      Slides:
+      <a href="https://docs.google.com/presentation/d/1RUVdpiInMq7BdQCw6GwGCndFB03M9HsGVoeeXO8JHIM/edit?usp=sharing">https://docs.google.com/presentation/d/1RUVdpiInMq7BdQCw6GwGCndFB03M9HsGVoeeXO8JHIM/edit?usp=sharing</a>
+      <br>
+      Final project video:
+      <a href="https://drive.google.com/file/d/1Msj6MknbJM_7U2gdqqbIc8aNFipY4Vzd/view?usp=sharing">https://drive.google.com/file/d/1Msj6MknbJM_7U2gdqqbIc8aNFipY4Vzd/view?usp=sharing</a>
     </p>
   </div>
 </header>
@@ -382,9 +398,9 @@
     </div>
     <div>
       <p>
-        We extended the CS184 Project&nbsp;3-2 Monte Carlo path tracer to render
+        We extended the CS184 Homework 3 Monte Carlo path tracer to render
         a physically accurate, cinematic translucent slime. The work comprises
-        three major rendering systems added on top of the existing glass BSDF
+        three major rendering systems added on top of the existing glass material
         infrastructure: a homogeneous random-walk subsurface scattering (SSS)
         medium with Henyey&ndash;Greenstein importance sampling; hero-wavelength
         spectral path tracing with Sellmeier/Cauchy dispersive dielectrics and
@@ -393,7 +409,7 @@
         importance sampling (MIS) with the power heuristic ties all three systems
         together at the direct-lighting step. We validated each feature
         independently with ablation renders, tuned the material parameters until
-        the sphere read convincingly as slime, and produced a 23-frame animated
+        the sphere read convincingly as slime, and produced a 41-frame animated
         sequence from Blender fluid-simulation geometry. The final renders show
         clearly how each layer—scattering body, spectral fringing, and
         photographic environment—contributes to the slime aesthetic.
@@ -414,23 +430,24 @@
       <p>
         We modelled the slime volume as a homogeneous participating medium
         defined by three per-channel parameters exported from the scene file:
-        absorption <code>sigma_a</code>, scattering <code>sigma_s</code>, and
-        the Henyey&ndash;Greenstein anisotropy parameter <code>phase_g</code>.
+        absorption <span class="sym">&sigma;<sub>a</sub></span>, scattering
+        <span class="sym">&sigma;<sub>s</sub></span>, and the
+        Henyey&ndash;Greenstein anisotropy parameter <span class="sym">g</span>.
       </p>
       <p>
-        When a refracted ray enters the medium (detected by <code>w_in.z &lt; 0</code>
-        in the BSDF shading frame and a non-null <code>medium_inside</code>
-        pointer on the BSDF), the path tracer switches to a random-walk loop
-        of up to 32 bounces. At each step:
+        When a refracted ray crosses the slime boundary and enters the interior,
+        the path tracer switches from surface shading to a random-walk loop of up
+        to 32 volume bounces. At each step:
       </p>
       <ol>
         <li>
           A free-flight distance is sampled from the exponential distribution
           implied by the mean extinction coefficient
-          <code>&sigma;<sub>t,mean</sub> = (&sigma;<sub>t,R</sub>+&sigma;<sub>t,G</sub>+&sigma;<sub>t,B</sub>) / 3</code>.
+          <span class="sym">&bar;&sigma;<sub>t</sub> =
+          (&sigma;<sub>t,R</sub> + &sigma;<sub>t,G</sub> + &sigma;<sub>t,B</sub>) / 3</span>.
         </li>
         <li>
-          Beer&ndash;Lambert transmittance <code>T(t) = exp(&minus;&sigma;<sub>t</sub>&thinsp;t)</code>
+          Beer&ndash;Lambert transmittance <span class="sym">T(t) = e<sup>&minus;&sigma;<sub>t</sub>t</sup></span>
           is applied per RGB channel to weight the contribution.
         </li>
         <li>
@@ -443,31 +460,32 @@
       <p>
         The HG CDF inversion draws
       </p>
-      <samp class="math">cos&theta; = &minus;(1+g&sup2;&minus;((1&minus;g&sup2;)/(1+g&minus;2g&xi;))&sup2;) / (2g)</samp>
+      <samp class="math">cos&theta; = &minus;(1 + g&sup2; &minus; ((1 &minus; g&sup2;) / (1 + g &minus; 2g&xi;))&sup2;) / 2g</samp>
       <p>
-        and maps the direction into world space through a <code>make_coord_space</code>
-        frame built around the current direction <em>w<sub>o</sub></em>.
+        where <span class="sym">&xi;</span> is a uniform random number. The sampled
+        angle is then turned into a world-space scattering direction around the
+        current outgoing direction <span class="sym">w<sub>o</sub></span>.
       </p>
       <p>
         A toggle flag (<code>enable_sss</code>, CLI flag <code>-N</code>, GUI
         checkbox) lets us disable the random walk for comparison renders while
-        keeping the glass BSDF active.
+        keeping the glass surface material active.
       </p>
     </div>
     <div>
       <div class="grid-2">
         <figure class="card">
           <img src="validation/out_sss_sphere.png" alt="SSS sphere Week 1">
-          <figcaption><strong>Week 1: SSS only</strong>
+          <figcaption><strong>Week 1: SSS validation</strong>
             Cornell-box validation. The sphere is cloudy and translucent;
             light exits opposite the source.
           </figcaption>
         </figure>
         <figure class="card">
           <img src="validation/ablation_a_noSSS.png" alt="No SSS ablation">
-          <figcaption><strong>Ablation (a): no SSS</strong>
-            Pure glass—no volume scattering. The interior is empty; the
-            slime body disappears entirely.
+          <figcaption><strong>Week 1 comparison: no SSS</strong>
+            Pure glass with no volume scattering. This shows what the same
+            material looks like before the random-walk medium is enabled.
           </figcaption>
         </figure>
       </div>
@@ -484,7 +502,7 @@
         <em>hero-wavelength</em> spectral sampling scheme of Wilkie et al. 2014:
         each camera ray is assigned a single wavelength &lambda; drawn uniformly
         from [380, 720]&thinsp;nm. All refraction events along the path use
-        the wavelength-dependent IOR for that ray, so a single wavelength traces
+        the wavelength-dependent index of refraction for that ray, so a single wavelength traces
         a consistent chromatic path through the dielectric.
       </p>
       <p>
@@ -497,26 +515,29 @@
       </p>
       <samp class="math">L<sub>RGB</sub> = L&thinsp;&middot;&thinsp;R(&lambda;) / E[R]&ensp;,&ensp;L&thinsp;&middot;&thinsp;G(&lambda;) / E[G]&ensp;,&ensp;L&thinsp;&middot;&thinsp;B(&lambda;) / E[B]</samp>
       <p>
-        The IOR at each wavelength is computed with either the Sellmeier equation
+        The index of refraction at each wavelength is computed with either the Sellmeier equation
         (three-term, using material-specific <em>B</em> and <em>C</em> vectors)
-        or the Cauchy approximation <code>n(&lambda;) = a + b/&lambda;&sup2;</code>
-        as a simpler fallback. The scene file exposes a per-object
-        <code>dispersion</code> parameter (Cauchy B coefficient) that controls
-        how strongly colours separate on refraction.
+        or the Cauchy approximation as a simpler fallback:
+      </p>
+      <samp class="math">n(&lambda;) = A + B / &lambda;&sup2;</samp>
+      <p>
+        The coefficient <span class="sym">B</span> controls how strongly colours
+        separate during refraction. Higher dispersion makes edges split into
+        more visible red, green, and blue fringes.
       </p>
     </div>
     <div>
       <div class="grid-2">
         <figure class="card">
           <img src="validation/w2_glass_dispersion.png" alt="Glass with dispersion">
-          <figcaption><strong>Spectral glass</strong>
+          <figcaption><strong>Week 2: spectral glass</strong>
             Cauchy dispersion visibly separates R/G/B on tight highlights.
           </figcaption>
         </figure>
         <figure class="card">
           <img src="validation/ablation_b_noDispersion.png" alt="No dispersion ablation">
-          <figcaption><strong>Ablation (b): constant IOR</strong>
-            Dispersion disabled. Refractive fringing disappears; colours at
+          <figcaption><strong>Week 2 comparison: no dispersion</strong>
+            Dispersion disabled with a constant index of refraction. Refractive fringing disappears; colours at
             edges are achromatic.
           </figcaption>
         </figure>
@@ -524,11 +545,11 @@
       <div class="grid-2" style="margin-top:0">
         <figure class="card">
           <img src="validation/w2_sss_spectral.png" alt="SSS + spectral">
-          <figcaption><strong>SSS + spectral</strong></figcaption>
+          <figcaption><strong>Week 2: SSS + spectral</strong></figcaption>
         </figure>
         <figure class="card">
           <img src="validation/w2_sss_no_spectral.png" alt="SSS without spectral">
-          <figcaption><strong>SSS, no spectral</strong> (constant IOR)</figcaption>
+          <figcaption><strong>Week 2 comparison: SSS without spectral dispersion</strong></figcaption>
         </figure>
       </div>
     </div>
@@ -542,7 +563,7 @@
         We added an EXR/HDR environment-map loader and replaced the trivial
         uniform-direction sampler with a two-dimensional CDF table. At
         initialization, each pixel&rsquo;s luminance is multiplied by
-        <code>sin(&theta;)</code> (the solid-angle correction for equirectangular
+        <span class="sym">sin&theta;</span> (the solid-angle correction for equirectangular
         projection) to build a row-marginal CDF. To sample a direction:
       </p>
       <ol>
@@ -552,43 +573,70 @@
       </ol>
       <p>
         The PDF for a sampled direction is
-        <code>p<sub>env</sub>(dir) = luminance[row,col] / (&Sigma; luminance &thinsp;&times;&thinsp; sin&theta;) &thinsp;&times;&thinsp; 1/d&Omega;<sub>pixel</sub></code>.
+      </p>
+      <samp class="math">p<sub>env</sub>(&omega;) =
+        L<sub>ij</sub> / (&Sigma; L<sub>ij</sub> sin&theta;<sub>j</sub>) &middot;
+        1 / &Delta;&Omega;<sub>ij</sub></samp>
+      <p>
+        Here <span class="sym">L<sub>ij</sub></span> is the luminance of an
+        environment-map pixel and <span class="sym">&Delta;&Omega;<sub>ij</sub></span>
+        is that pixel's solid angle on the sphere.
         A bilinear interpolation helper (<code>bilerp</code>) wraps the map at
         the &pm;&pi; seam so no visible crease appears.
       </p>
       <p>
         Multiple importance sampling combines environment samples
-        (weighted by env PDF) with BSDF samples (weighted by BSDF PDF) using
-        the power heuristic <code>w = a&sup2;/(a&sup2;+b&sup2;)</code>.
+        (weighted by the environment probability) with material-direction samples
+        (weighted by the material probability) using
+        the power heuristic:
+      </p>
+      <samp class="math">w = p<sub>a</sub>&sup2; / (p<sub>a</sub>&sup2; + p<sub>b</sub>&sup2;)</samp>
+      <p>
         This is particularly important for the slime material because the glass
-        BSDF has a narrow specular lobe while the environment map has bright
+        material has a narrow specular lobe while the environment map has bright
         areas far from that lobe.
       </p>
     </div>
     <div>
+      <p>
+        We rendered the same slime setup under four HDRIs to check that the
+        material responds to different real-world lighting, not just one tuned
+        background.
+      </p>
       <div class="grid-2">
         <figure class="card">
-          <img src="validation/ablation_c_noEnv.png" alt="No environment light">
-          <figcaption><strong>Ablation (c): no env light</strong>
-            Constant-color environment. Flat and unnatural reflections.
+          <img src="validation/hdri1.png" alt="Slime render under Afrikaans Church Exterior HDRI">
+          <figcaption><strong>Afrikaans Church Exterior HDRI</strong>
+            The gray outdoor ground gives a flatter, cooler reflection. The
+            slime looks more muted, with a softer green body and less dramatic
+            color variation.
           </figcaption>
         </figure>
         <figure class="card">
-          <img src="validation/ablation_hdri.png" alt="Full HDRI">
-          <figcaption><strong>Full HDRI</strong>
-            Same scene, Venice sunset environment. Sky colour reads through the
-            refractive surface.
+          <img src="validation/hdri2.png" alt="Slime render under Ferndale Studio HDRI">
+          <figcaption><strong>Ferndale Studio HDRI</strong>
+            The dark studio creates high-contrast reflections. Bright lamps
+            show up as sharp yellow highlights, making the glassy surface and
+            spectral fringing easier to see.
           </figcaption>
         </figure>
       </div>
       <div class="grid-2" style="margin-top:0">
         <figure class="card">
-          <img src="validation/slime_env_v2.png" alt="Slime with environment">
-          <figcaption><strong>Slime on ground, env lighting</strong></figcaption>
+          <img src="validation/hdri3.png" alt="Slime render under Illovo Beach Balcony HDRI">
+          <figcaption><strong>Illovo Beach Balcony HDRI</strong>
+            The sunny garden environment adds strong green and warm reflections.
+            The slime picks up more outdoor detail, so the refractive shell looks
+            clearer and more dimensional.
+          </figcaption>
         </figure>
         <figure class="card">
-          <img src="validation/slime_venice_v2.png" alt="Venice HDRI scene">
-          <figcaption><strong>Venice HDRI scene</strong></figcaption>
+          <img src="validation/hdri4.png" alt="Slime render under Venice Sky HDRI">
+          <figcaption><strong>Venice Sky HDRI</strong>
+            The stone walkway and warm sky tint the blob with yellow-green
+            transmission. This version best shows the slime sitting in a real
+            outdoor environment.
+          </figcaption>
         </figure>
       </div>
     </div>
@@ -603,11 +651,11 @@
         Early renders with the random walk enabled looked identical to plain glass.
         We added atomic debug counters to confirm that the walk was actually
         firing (<code>[SSS] random walk triggered</code>). The real cause was that
-        <code>sigma_s = 0.05</code> gives a mean free path of
-        <code>1/&sigma;<sub>t</sub> &asymp; 10&thinsp;units</code>—far larger than
+        <span class="sym">&sigma;<sub>s</sub> = 0.05</span> gives a mean free path of
+        <span class="sym">1 / &sigma;<sub>t</sub> &asymp; 10</span> units, far larger than
         the sphere&rsquo;s diameter of 1.6&thinsp;units, so almost no scattering
         events occurred inside the geometry. Increasing to
-        <code>sigma_s = 2.0&ndash;3.0</code> brings the mean free path to
+        <span class="sym">&sigma;<sub>s</sub> = 2.0&ndash;3.0</span> brings the mean free path to
         ~0.3&thinsp;units (roughly 5 mean free paths across the sphere) and
         produces strong, clearly visible SSS.
       </p>
@@ -615,9 +663,9 @@
       <p>
         Enabling SSS, spectral sampling, and HDRI simultaneously multiplied
         variance. We addressed this by tuning the phase-function anisotropy
-        (<code>g = 0.7</code> forward-scattering reduces path-length variance
+        (<span class="sym">g = 0.7</span> forward-scattering reduces path-length variance
         inside the medium) and by routing all non-SSS paths through the MIS
-        estimator so environment samples are combined optimally with glass BSDF
+        estimator so environment samples are combined optimally with glass-material
         samples.
       </p>
     </div>
@@ -625,7 +673,7 @@
       <h3 style="font-size:1rem;color:var(--warm);">Spectral noise on SSS paths</h3>
       <p>
         When a spectral ray undergoes many SSS bounces its throughput becomes
-        very small for wavelengths that are heavily absorbed (<code>sigma_a</code>
+        very small for wavelengths that are heavily absorbed (<span class="sym">&sigma;<sub>a</sub></span>
         channels), which produces high-variance fireflies in those channels.
         We mitigated this with Russian roulette termination inside the random
         walk and by capping the walk at 32 bounces.
@@ -646,10 +694,12 @@
         non-identity bind matrices on instanced geometry, and material
         bindings that reference effect IDs rather than the names the CGL
         loader expects. We wrote a Python post-processing script
-        (<code>obj_to_dae.py</code>) to normalise the exports&mdash;rewriting
+        (<code>obj_to_dae.py</code>) to normalise the exports. It rewrites
         transforms, flipping axes, and injecting the CGL-specific
-        <code>&lt;extra&gt;</code> material tags needed to carry
-        <code>sigma_a</code>, <code>sigma_s</code>, and <code>phase_g</code>
+        <code>&lt;extra&gt;</code> material tags needed to carry absorption
+        <span class="sym">&sigma;<sub>a</sub></span>, scattering
+        <span class="sym">&sigma;<sub>s</sub></span>, and anisotropy
+        <span class="sym">g</span>
         into the renderer. Even then, normals on thin fluid sheets from the
         Mantaflow simulation occasionally faced inward, requiring an
         additional winding-order correction pass before the geometry
@@ -663,21 +713,22 @@
   <ul>
     <li>
       <strong>Mean free path must be calibrated to scene scale.</strong>
-      A physically plausible sigma_s for real-world centimetres can be
+      A physically plausible scattering coefficient <span class="sym">&sigma;<sub>s</sub></span>
+      for real-world centimetres can be
       almost invisible at renderer units of metres; always sanity-check
       mfp against object diameter before tuning colour.
     </li>
     <li>
-      <strong>MIS is non-optional with environment lighting + specular BSDFs.</strong>
-      Without it, BSDF sampling misses the bright environment regions and
+      <strong>MIS mattered a lot with environment lighting and specular materials.</strong>
+      Without it, material-direction sampling misses the bright environment regions and
       env-map sampling misses the narrow specular lobe. Together the variance
       was 10&times; lower than either strategy alone.
     </li>
     <li>
-      <strong>Hero-wavelength spectral sampling is cheap relative to the effect.</strong>
-      It adds zero extra rays; the only overhead is the IOR lookup and the
-      sensor response multiply at the camera. Dispersion is essentially free
-      if you are already doing spectral sampling.
+      <strong>Hero-wavelength spectral sampling gave a visible effect without much extra cost.</strong>
+      It adds zero extra rays; the only overhead is the index-of-refraction lookup and the
+      sensor response multiply at the camera. Once spectral sampling is on,
+      dispersion only needs a wavelength-dependent index-of-refraction lookup.
     </li>
     <li>
       <strong>An open scene is necessary for SSS to look interesting.</strong>
@@ -688,7 +739,7 @@
     </li>
     <li>
       <strong>Fluid simulation animation exposed render bottlenecks.</strong>
-      Rendering 23 frames at 512 spp took significant wall-clock time per
+      Rendering 41 frames at 512 spp took significant wall-clock time per
       frame; multi-threading and tile-based work queues were critical.
     </li>
   </ul>
@@ -701,37 +752,35 @@
 
   <h3>Animated Sequence</h3>
   <p>
-    A 23-frame animation exported from a Blender Mantaflow fluid simulation,
-    rendered per-frame through our full pipeline (SSS + spectral + HDRI).
+    Final animation rendered through our full pipeline: random-walk subsurface
+    scattering, spectral dispersion, and HDRI environment lighting.
   </p>
   <div class="hero-video">
-    <video autoplay loop muted playsinline>
-      <source src="validation/slime_animation.mp4" type="video/mp4">
-      Your browser does not support HTML5 video.
-    </video>
-    <p>Slimelight animation &mdash; 23 frames, full pipeline (SSS + spectral dispersion + HDRI), rendered offline.</p>
+    <img src="validation/slimeblob.gif" alt="Animated Slimelight slime blob rendered in an HDRI environment">
+    <p>Slimelight animation. Final GIF, full pipeline (SSS + spectral dispersion + HDRI), rendered offline at 1024 spp.</p>
   </div>
 
   <h3>Ablation Study</h3>
   <p>
     The same slime mesh rendered under identical camera and lighting conditions
-    with features progressively added. Each column isolates one contribution.
+    with features progressively added. Each column isolates one contribution;
+    the final showcase renders were produced at 1024 spp.
   </p>
   <div class="grid-4">
     <figure class="card">
-      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(a) Constant environment &mdash; no HDRI</div></div>
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(a) Constant environment, no HDRI</div></div>
       <img src="validation/final_ablation_1_noHDRI.png" alt="No HDRI, constant environment" style="aspect-ratio:4/3;">
       <figcaption>Flat constant-colour environment. No photographic lighting; slime reads as a bright white blob.</figcaption>
     </figure>
     <figure class="card">
       <div class="cap" style="padding-bottom:0"><div class="ablation-label">(b) No subsurface scattering</div></div>
       <img src="validation/final_ablation_2_noSSS.png" alt="No SSS" style="aspect-ratio:4/3;">
-      <figcaption>Glass BSDF only. The interior volume is absent; dispersion is visible at edges but the body is hollow.</figcaption>
+      <figcaption>Glass surface only. The interior volume is absent; dispersion is visible at edges but the body is hollow.</figcaption>
     </figure>
     <figure class="card">
-      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(c) No dispersion &mdash; constant IOR</div></div>
+      <div class="cap" style="padding-bottom:0"><div class="ablation-label">(c) No dispersion, constant index of refraction</div></div>
       <img src="validation/final_ablation_3_noDispersion.png" alt="No dispersion" style="aspect-ratio:4/3;">
-      <figcaption>SSS + HDRI active, constant IOR. The cloudy body is present but chromatic fringing at refractive edges disappears.</figcaption>
+      <figcaption>SSS + HDRI active, constant index of refraction. The cloudy body is present but chromatic fringing at refractive edges disappears.</figcaption>
     </figure>
     <figure class="card">
       <div class="cap" style="padding-bottom:0"><div class="ablation-label">(d) Full pipeline</div></div>
@@ -743,25 +792,27 @@
   <h3>Material Variants</h3>
   <p>
     The same rendering pipeline, different medium parameters, showing the range
-    of translucent looks achievable by tuning <code>sigma_a</code>,
-    <code>sigma_s</code>, and <code>phase_g</code>.
+    of translucent looks achievable by tuning absorption
+    <span class="sym">&sigma;<sub>a</sub></span>, scattering
+    <span class="sym">&sigma;<sub>s</sub></span>, and phase anisotropy
+    <span class="sym">g</span>.
   </p>
   <div class="grid-4">
     <figure class="card">
       <img src="validation/ablation_d_jelly.png" alt="Jelly variant">
-      <figcaption><strong>Jelly</strong> &mdash; high scattering, low absorption, near-white body</figcaption>
+      <figcaption><strong>Jelly</strong>: high scattering, low absorption, near-white body</figcaption>
     </figure>
     <figure class="card">
       <img src="validation/ablation_e_jade.png" alt="Jade variant">
-      <figcaption><strong>Jade</strong> &mdash; green-tinted absorption, medium density</figcaption>
+      <figcaption><strong>Jade</strong>: green-tinted absorption, medium density</figcaption>
     </figure>
     <figure class="card">
       <img src="validation/ablation_e_denseJade.png" alt="Dense jade variant">
-      <figcaption><strong>Dense jade</strong> &mdash; high sigma_t, shorter mean free path, darker core</figcaption>
+      <figcaption><strong>Dense jade</strong>: high <span class="sym">&sigma;<sub>t</sub></span>, shorter mean free path, darker core</figcaption>
     </figure>
     <figure class="card">
       <img src="validation/slime_jelly_v2.png" alt="Jelly v2">
-      <figcaption><strong>Jelly v2</strong> &mdash; blended mesh, outdoor HDRI</figcaption>
+      <figcaption><strong>Jelly v2</strong>: blended mesh, outdoor HDRI</figcaption>
     </figure>
   </div>
 
@@ -769,31 +820,15 @@
   <div class="grid-3">
     <figure class="card card-wide">
       <img src="validation/slime_env_v2.png" alt="Hero: outdoor environment">
-      <figcaption><strong>Outdoor environment</strong> &mdash; slime on ground plane, overcast HDRI</figcaption>
+      <figcaption><strong>Outdoor environment</strong>: slime on ground plane, overcast HDRI</figcaption>
     </figure>
     <figure class="card card-wide">
       <img src="validation/slime_venice_v2.png" alt="Hero: Venice HDRI">
-      <figcaption><strong>Venice sunset HDRI</strong> &mdash; warm environment colour through the glass body</figcaption>
+      <figcaption><strong>Venice sunset HDRI</strong>: warm environment colour through the glass body</figcaption>
     </figure>
     <figure class="card card-wide">
       <img src="validation/slime_mesh_hero.png" alt="Hero: blended mesh">
-      <figcaption><strong>Blended mesh</strong> &mdash; Blender fluid geometry with hero-wavelength spectral rendering</figcaption>
-    </figure>
-  </div>
-
-  <h3>Progression: Week 1 &rarr; Final</h3>
-  <div class="grid-3">
-    <figure class="card">
-      <img src="validation/out_glass_baseline.png" alt="Baseline glass">
-      <figcaption><strong>Baseline</strong> &mdash; plain glass BSDF from P3-2, no modifications</figcaption>
-    </figure>
-    <figure class="card">
-      <img src="validation/out_spectral_slime.png" alt="Week 2 spectral">
-      <figcaption><strong>Week 2</strong> &mdash; SSS + hero-wavelength spectral sampling, Cornell box</figcaption>
-    </figure>
-    <figure class="card">
-      <img src="validation/ablation_d_full.png" alt="Final">
-      <figcaption><strong>Final</strong> &mdash; full pipeline: SSS + spectral + HDRI + MIS</figcaption>
+      <figcaption><strong>Blended mesh</strong>: Blender fluid geometry with hero-wavelength spectral rendering</figcaption>
     </figure>
   </div>
 
@@ -851,7 +886,7 @@
         <li>Homogeneous medium class (<code>medium.h/cpp</code>)</li>
         <li>Random-walk radiance integration in pathtracer</li>
         <li>SSS enable/disable flag (CLI <code>-N</code>, GUI checkbox)</li>
-        <li>Debugging sigma_s / mean-free-path calibration</li>
+        <li>Debugging <span class="sym">&sigma;<sub>s</sub></span> / mean-free-path calibration</li>
       </ul>
     </div>
     <div class="contrib-card">
@@ -859,7 +894,7 @@
       <ul>
         <li>Hero-wavelength spectral infrastructure (<code>spectral.h</code>)</li>
         <li>Gaussian RGB sensor response curves</li>
-        <li>Sellmeier &amp; Cauchy dispersive IOR in glass/refraction BSDFs</li>
+        <li>Sellmeier &amp; Cauchy dispersive index of refraction in glass/refraction materials</li>
         <li>Week 1 and Week 2 comparison validation renders</li>
       </ul>
     </div>
@@ -886,8 +921,8 @@
 
 <footer>
   <p>
-    Slimelight &mdash; CS184 Final Project, Spring 2026.
-    Built on the CS184 Project 3-2 path tracer codebase. &nbsp;
+    Slimelight, CS184 Final Project, Spring 2026.
+    Built on the CS184 Homework 3 path tracer codebase. &nbsp;
     <a href="milestone.html" style="color:var(--accent);">Milestone report</a>
   </p>
 </footer>
