@@ -428,6 +428,18 @@
   <h3>1 &nbsp; Homogeneous Random-Walk Subsurface Scattering</h3>
   <div class="two-col">
     <div>
+      <p style="color:var(--muted);font-style:italic;">
+        For the slime to read as jelly rather than glass, light has to be
+        absorbed differently as it travels through the volume: long paths
+        pick up more colour than short ones. In our hero render,
+        Beer&ndash;Lambert absorption with
+        <span class="sym">&sigma;<sub>a</sub> = (0.5, 0.05, 0.5)</span>
+        (red and blue absorbed, green passes through) is doing most of the
+        visible work. The full random-walk machinery also supports
+        volumetric scattering, which becomes dominant at higher
+        <span class="sym">&sigma;<sub>s</sub></span> (see the validation
+        sphere).
+      </p>
       <p>
         We modelled the slime volume as a homogeneous participating medium
         defined by three per-channel parameters exported from the scene file:
@@ -468,9 +480,20 @@
         current outgoing direction <span class="sym">w<sub>o</sub></span>.
       </p>
       <p>
-        A toggle flag (<code>enable_sss</code>, CLI flag <code>-N</code>, GUI
-        checkbox) lets us disable the random walk for comparison renders while
-        keeping the glass surface material active.
+        SSS is toggled at the scene level rather than at runtime: the COLLADA
+        parser allocates a <code>HomogeneousMedium</code> only when both
+        <code>&lt;sigma_a&gt;</code> and <code>&lt;sigma_s&gt;</code> are present
+        in the dielectric&rsquo;s <code>&lt;glass&gt;</code> block
+        (<code>collada.cpp:1139&ndash;1143</code>). Removing those tags
+        leaves a plain glass material, which is what the no-SSS ablation uses.
+      </p>
+      <p style="color:var(--muted);font-size:0.86rem;margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;">
+        <strong style="color:var(--ink);">References for this section:</strong>
+        Pharr et al., PBRT 4 (Volume Scattering and Volume Rendering chapters)&thinsp;<a href="#ref1">[1]</a>;
+        Henyey &amp; Greenstein 1941 (phase function)&thinsp;<a href="#ref3">[3]</a>;
+        Jensen et al. 2001 (the
+        <span class="sym">&sigma;<sub>a</sub></span>/<span class="sym">&sigma;<sub>s</sub></span>/<span class="sym">g</span>
+        parameterisation)&thinsp;<a href="#ref5">[5]</a>.
       </p>
     </div>
     <div>
@@ -497,6 +520,13 @@
   <h3>2 &nbsp; Hero-Wavelength Spectral Sampling &amp; Dispersion</h3>
   <div class="two-col">
     <div>
+      <p style="color:var(--muted);font-style:italic;">
+        The faint prismatic rainbow visible at the slime&rsquo;s silhouette
+        and around bright refracted highlights inside its body comes from
+        each wavelength of light refracting at a slightly different angle.
+        To capture that, we trace one wavelength per ray and reconstruct
+        RGB at the camera.
+      </p>
       <p>
         Standard RGB path tracing cannot model chromatic dispersion because it
         treats the three channels as independent. We implemented the
@@ -525,6 +555,13 @@
         The coefficient <span class="sym">B</span> controls how strongly colours
         separate during refraction. Higher dispersion makes edges split into
         more visible red, green, and blue fringes.
+      </p>
+      <p style="color:var(--muted);font-size:0.86rem;margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;">
+        <strong style="color:var(--ink);">References for this section:</strong>
+        Wilkie et al. 2014 (hero-wavelength sampling, single&thinsp;&lambda;
+        per camera ray)&thinsp;<a href="#ref2">[2]</a>;
+        Pharr et al., PBRT 4 (Radiometry, Spectra and Color; Cauchy and
+        Sellmeier IOR forms)&thinsp;<a href="#ref1">[1]</a>.
       </p>
     </div>
     <div>
@@ -560,6 +597,14 @@
   <h3>3 &nbsp; HDR Environment Lighting with Importance Sampling</h3>
   <div class="two-col">
     <div>
+      <p style="color:var(--muted);font-style:italic;">
+        We wanted the slime to sit inside a real photographic environment
+        (cobblestones, sky, sunlight) instead of a black void
+        or a Cornell box. The HDR environment map acts as both the visible
+        backdrop and the dominant light source, so the slime&rsquo;s
+        reflections, refractions, and transmitted colour all pick up the
+        surroundings.
+      </p>
       <p>
         We added an EXR/HDR environment-map loader and replaced the trivial
         uniform-direction sampler with a two-dimensional CDF table. At
@@ -581,9 +626,10 @@
       <p>
         Here <span class="sym">L<sub>ij</sub></span> is the luminance of an
         environment-map pixel and <span class="sym">&Delta;&Omega;<sub>ij</sub></span>
-        is that pixel's solid angle on the sphere.
+        is that pixel&rsquo;s solid angle on the sphere.
         A bilinear interpolation helper (<code>bilerp</code>) wraps the map at
-        the &pm;&pi; seam so no visible crease appears.
+        the &plusmn;&pi; longitude boundary so the lookup is correct on both
+        sides.
       </p>
       <p>
         Multiple importance sampling combines environment samples
@@ -596,6 +642,13 @@
         This is particularly important for the slime material because the glass
         material has a narrow specular lobe while the environment map has bright
         areas far from that lobe.
+      </p>
+      <p style="color:var(--muted);font-size:0.86rem;margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;">
+        <strong style="color:var(--ink);">References for this section:</strong>
+        Pharr et al., PBRT 4 (Image Infinite Lights, importance sampling 2D
+        distributions by marginal / conditional CDFs)&thinsp;<a href="#ref1">[1]</a>;
+        Veach 1997 (multiple importance sampling, power
+        heuristic)&thinsp;<a href="#ref4">[4]</a>.
       </p>
     </div>
     <div>
@@ -645,66 +698,74 @@
 
   <!-- Problems -->
   <h3>4 &nbsp; Problems Encountered</h3>
-  <div class="two-col">
+  <div class="two-col" style="font-size:0.9rem;line-height:1.55;">
     <div>
-      <h3 style="font-size:1rem;color:var(--warm);">SSS visually identical to glass</h3>
+      <h3 style="font-size:0.96rem;color:var(--warm);">Our first SSS sphere looked exactly like clear glass</h3>
       <p>
-        Early renders with the random walk enabled looked identical to plain glass.
-        We added atomic debug counters to confirm that the walk was actually
-        firing (<code>[SSS] random walk triggered</code>). The real cause was that
-        <span class="sym">&sigma;<sub>s</sub> = 0.05</span> gives a mean free path of
-        <span class="sym">1 / &sigma;<sub>t</sub> &asymp; 10</span> units, far larger than
-        the sphere&rsquo;s diameter of 1.6&thinsp;units, so almost no scattering
-        events occurred inside the geometry. Increasing to
-        <span class="sym">&sigma;<sub>s</sub> = 2.0&ndash;3.0</span> brings the mean free path to
-        ~0.3&thinsp;units (roughly 5 mean free paths across the sphere) and
-        produces strong, clearly visible SSS.
+        Whether subsurface scattering shows up depends on both how dense the
+        medium is (<span class="sym">&sigma;<sub>s</sub></span>) and how big
+        the object is. Our first validation sphere was small (~1.6 units)
+        with <span class="sym">&sigma;<sub>s</sub> = 0.05</span>, so light
+        typically travelled ~10 units before bouncing, far further
+        than the sphere itself, and the result looked identical to
+        plain glass. For the validation sphere we bumped
+        <span class="sym">&sigma;<sub>s</sub></span> up to 3.0 (~5 bounces
+        across); for the hero slime we kept it at 0.05 and leaned on
+        absorption instead, with
+        <span class="sym">&sigma;<sub>a</sub> = (0.5, 0.05, 0.5)</span>
+        absorbing red and blue while letting green pass through, which is
+        what gives the body its green tint.
       </p>
-      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">High variance with all features combined</h3>
+      <h3 style="font-size:0.96rem;color:var(--warm);margin-top:16px;">The slime appeared to float instead of fall</h3>
       <p>
-        Enabling SSS, spectral sampling, and HDRI simultaneously multiplied
-        variance. We addressed this by tuning the phase-function anisotropy
-        (<span class="sym">g = 0.7</span> forward-scattering reduces path-length variance
-        inside the medium) and by routing all non-SSS paths through the MIS
-        estimator so environment samples are combined optimally with glass-material
-        samples.
+        For the 41-frame animation each frame is its own DAE with a slightly
+        different mesh. The renderer auto-positions the camera based on the
+        scene&rsquo;s bounding box, so as the slime fell and splatted the
+        bbox got shorter and the camera retracted in step, making the
+        slime appear stationary while the floor receded. The fix
+        (<code>batch_convert.py:128&ndash;147</code>) is to inject three
+        sub-pixel anchor vertices into every frame at a fixed height (the
+        highest point any frame ever reaches, from a pre-pass that also
+        aligns the floor at <code>:46&ndash;68</code>). They form an
+        invisible triangle that pins the bbox identically across all 41
+        frames; with the bbox stable, the auto-camera stays put and the
+        slime actually falls.
       </p>
     </div>
     <div>
-      <h3 style="font-size:1rem;color:var(--warm);">Spectral noise on SSS paths</h3>
+      <h3 style="font-size:0.96rem;color:var(--warm);">Combining two sampling strategies needed every light to answer a new question</h3>
       <p>
-        When a spectral ray undergoes many SSS bounces its throughput becomes
-        very small for wavelengths that are heavily absorbed (<span class="sym">&sigma;<sub>a</sub></span>
-        channels), which produces high-variance fireflies in those channels.
-        We mitigated this with Russian roulette termination inside the random
-        walk and by capping the walk at 32 bounces.
+        Direct lighting has two strategies: aim a ray <em>toward</em> a light,
+        or pick a direction off the surface and hope it <em>lands</em> on a
+        light. Each is good in different cases &mdash; the first for small
+        lights, the second for shiny materials. To combine them with MIS, each
+        light has to answer &ldquo;if a ray came in <em>this</em> direction,
+        how likely am I to have produced it?&rdquo; The starter code only
+        knew how to generate directions, not score them. We added a
+        <code>pdf_L(p, wi)</code> for each light type, the trickiest being
+        the rectangular area light: we had to convert probability over the
+        light&rsquo;s surface into probability over incoming directions by
+        intersecting the query ray with the rectangle and applying the
+        geometric Jacobian <span class="sym">d&sup2; / (area &middot; cos&theta;)</span>
+        (<code>light.cpp:107&ndash;126</code>). Once every light could score
+        arbitrary directions, the BSDF-sample branch of the path tracer could
+        combine with the light-sample branch through the power heuristic.
       </p>
-      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">Environment map seam</h3>
+      <h3 style="font-size:0.96rem;color:var(--warm);margin-top:16px;">Black pooling where the slime touched the floor</h3>
       <p>
-        The bilinear interpolation in <code>env_bilerp</code> initially
-        produced a visible crease at the &plusmn;&pi; longitude boundary.
-        We fixed this by wrapping the column index modulo the map width in the
-        interpolation helper so the seam is seamless.
-      </p>
-      <h3 style="font-size:1rem;color:var(--warm);margin-top:18px;">Porting Blender geometry to the renderer</h3>
-      <p>
-        Getting Blender meshes into the renderer&rsquo;s COLLADA format was one
-        of the most time-consuming parts of the project. Blender exports
-        COLLADA files that are technically valid but use conventions the
-        renderer does not handle: Z-up vs. Y-up coordinate systems,
-        non-identity bind matrices on instanced geometry, and material
-        bindings that reference effect IDs rather than the names the CGL
-        loader expects. We wrote a Python post-processing script
-        (<code>obj_to_dae.py</code>) to normalise the exports. It rewrites
-        transforms, flipping axes, and injecting the CGL-specific
-        <code>&lt;extra&gt;</code> material tags needed to carry absorption
-        <span class="sym">&sigma;<sub>a</sub></span>, scattering
-        <span class="sym">&sigma;<sub>s</sub></span>, and anisotropy
-        <span class="sym">g</span>
-        into the renderer. Even then, normals on thin fluid sheets from the
-        Mantaflow simulation occasionally faced inward, requiring an
-        additional winding-order correction pass before the geometry
-        rendered correctly.
+        When the bottom of the slime mesh sat exactly on the floor plane at
+        <span class="sym">Y = 0</span>, we saw black blotches forming along the
+        contact edge. The cause was geometry coincidence: refracted rays
+        exiting the bottom of the slime would immediately re-intersect the
+        floor within the renderer&rsquo;s epsilon, producing ambiguous BVH
+        hits and self-shadowing that returned zero radiance. The fix
+        (<code>batch_convert.py:60</code>) is, after the global
+        floor-alignment pre-pass, to shift every frame up by an additional
+        <span class="sym">+0.05</span> units so the slime&rsquo;s lowest point
+        lands just above <span class="sym">Y = 0</span> instead of on it. The
+        lift is too small to see, the slime still appears to sit on
+        the floor, but it clears the intersection tolerance, and the
+        black pooling disappears.
       </p>
     </div>
   </div>
@@ -840,37 +901,43 @@
 <section class="refs">
   <h2>References</h2>
   <ol>
-    <li>
+    <li id="ref1">
       Pharr, M., Jakob, W., &amp; Humphreys, G. (2023).
       <em>Physically Based Rendering: From Theory to Implementation</em>, 4th ed.
-      MIT Press. Chapters 11 (Volumes), 4 (Spectral Rendering), 13 (Light Transport II).
+      MIT Press. Online at
+      <a href="https://pbr-book.org/4ed/contents">pbr-book.org/4ed</a>.
+      Chapters on Radiometry, Spectra and Color; Volume Scattering;
+      Light Sources; and Light Transport (surface reflection, MIS, volume
+      rendering).
     </li>
-    <li>
+    <li id="ref2">
       Wilkie, A., Nawaz, S., Droske, M., Weidlich, A., &amp; Hanika, J. (2014).
       Hero Wavelength Spectral Sampling.
-      <em>Computer Graphics Forum</em> 33(4), EGSR 2014.
+      <em>Computer Graphics Forum</em> 33(4) (Proc. EGSR 2014), 123&ndash;131.
+      <a href="https://cgg.mff.cuni.cz/~wilkie/Website/EGSR_14.html">cgg.mff.cuni.cz/~wilkie</a>.
     </li>
-    <li>
+    <li id="ref3">
       Henyey, L. G., &amp; Greenstein, J. L. (1941).
       Diffuse radiation in the Galaxy.
       <em>The Astrophysical Journal</em> 93, 70&ndash;83.
     </li>
-    <li>
+    <li id="ref4">
       Veach, E. (1997).
       Robust Monte Carlo Methods for Light Transport Simulation.
-      PhD thesis, Stanford University. (Multiple importance sampling, power heuristic.)
+      PhD thesis, Stanford University. Sections 9.2&ndash;9.3 (multiple
+      importance sampling, power heuristic).
     </li>
-    <li>
+    <li id="ref5">
       Jensen, H. W., Marschner, S. R., Levoy, M., &amp; Hanrahan, P. (2001).
       A Practical Model for Subsurface Light Transport.
-      <em>SIGGRAPH 2001</em>.
+      <em>Proc. SIGGRAPH 2001</em>, 511&ndash;518.
     </li>
-    <li>
-      Polyhaven. Free CC0 HDR environment maps.
+    <li id="ref6">
+      Polyhaven. Free CC0 HDR environment maps used for the hero scenes.
       <a href="https://polyhaven.com/hdris">polyhaven.com/hdris</a>
     </li>
-    <li>
-      Asher Zhu. Real-time UE5 slime demo (creative inspiration).
+    <li id="ref7">
+      Asher Zhu. Real-time UE5 slime demo (visual reference).
       <a href="https://asher.gg/category/slime/">asher.gg/category/slime</a>
     </li>
   </ol>
