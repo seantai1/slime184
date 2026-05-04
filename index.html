@@ -399,20 +399,21 @@
     <div>
       <p>
         We extended the CS184 Homework 3 Monte Carlo path tracer to render
-        a physically accurate, cinematic translucent slime. The work comprises
-        three major rendering systems added on top of the existing glass material
-        infrastructure: a homogeneous random-walk subsurface scattering (SSS)
-        medium with Henyey&ndash;Greenstein importance sampling; hero-wavelength
-        spectral path tracing with Sellmeier/Cauchy dispersive dielectrics and
-        Gaussian RGB sensor response curves; and HDR equirectangular environment
-        lighting with a two-dimensional CDF importance-sampling table. Multiple
-        importance sampling (MIS) with the power heuristic ties all three systems
-        together at the direct-lighting step. We validated each feature
-        independently with ablation renders, tuned the material parameters until
-        the sphere read convincingly as slime, and produced a 41-frame animated
-        sequence from Blender fluid-simulation geometry. The final renders show
-        clearly how each layer—scattering body, spectral fringing, and
-        photographic environment—contributes to the slime aesthetic.
+        a physically accurate translucent slime. We added three main systems to
+        the existing glass material: random-walk subsurface scattering (SSS),
+        hero-wavelength spectral dispersion, and HDRI environment lighting. The
+        SSS system treats the slime as a homogeneous medium and uses
+        Henyey&ndash;Greenstein importance sampling for internal scattering. The
+        spectral dispersion system traces one wavelength per ray, uses
+        Sellmeier/Cauchy index of refraction models, and reconstructs RGB with
+        Gaussian sensor response curves. The HDRI lighting system samples
+        equirectangular environment maps with a two-dimensional CDF and combines
+        those samples with material-direction samples using MIS and the power
+        heuristic. We validated each feature with ablation renders, tuned the
+        material parameters until the sphere read convincingly as slime, and
+        produced a 41-frame animated sequence from Blender fluid simulation
+        geometry. The final renders show how SSS, spectral dispersion, and HDRI
+        lighting each contribute to the slime aesthetic.
       </p>
     </div>
   </div>
