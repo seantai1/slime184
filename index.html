@@ -499,17 +499,30 @@
     <div>
       <div class="grid-2">
         <figure class="card">
-          <img src="validation/out_sss_sphere.png" alt="SSS sphere Week 1">
-          <figcaption><strong>Week 1: SSS validation</strong>
-            Cornell-box validation. The sphere is cloudy and translucent;
-            light exits opposite the source.
+          <img src="validation/final_ablation_2_noSSS.png" alt="No SSS ablation, zoomed mesh slime" style="aspect-ratio:4/3;">
+          <figcaption><strong>No SSS</strong>
+            Same scene with the medium disabled, leaving a plain refractive
+            glass body. The slime is colourless and the cobblestones refract
+            sharply through it.
           </figcaption>
         </figure>
         <figure class="card">
-          <img src="validation/ablation_a_noSSS.png" alt="No SSS ablation">
-          <figcaption><strong>Week 1 comparison: no SSS</strong>
-            Pure glass with no volume scattering. This shows what the same
-            material looks like before the random-walk medium is enabled.
+          <img src="validation/final_ablation_4_full.png" alt="Full pipeline with SSS, zoomed mesh slime" style="aspect-ratio:4/3;">
+          <figcaption><strong>With SSS (full pipeline)</strong>
+            Adding the homogeneous medium gives the slime its green body
+            colour from Beer&ndash;Lambert absorption and softens internal
+            refractions where scattering does fire.
+          </figcaption>
+        </figure>
+      </div>
+      <div class="grid-2" style="margin-top:16px;">
+        <figure class="card">
+          <img src="validation/out_sss_sphere.png" alt="Cornell-box SSS validation sphere" style="aspect-ratio:4/3;">
+          <figcaption><strong>Validation: pure scattering at high <span class="sym">&sigma;<sub>s</sub></span></strong>
+            Cornell-box test sphere with <span class="sym">&sigma;<sub>s</sub> = 3.0</span>, far higher than our hero. Light bounces
+            many times inside the volume before exiting, producing the
+            cloudy, milky translucency that pure scattering (with very little
+            absorption) looks like in isolation.
           </figcaption>
         </figure>
       </div>
@@ -567,27 +580,42 @@
     <div>
       <div class="grid-2">
         <figure class="card">
-          <img src="validation/w2_glass_dispersion.png" alt="Glass with dispersion">
-          <figcaption><strong>Week 2: spectral glass</strong>
-            Cauchy dispersion visibly separates R/G/B on tight highlights.
+          <img src="validation/final_ablation_3_noDispersion.png" alt="No dispersion, zoomed mesh slime" style="aspect-ratio:4/3;">
+          <figcaption><strong>Mesh: Constant IOR (no dispersion)</strong>
+            SSS and HDRI are both on but the index of refraction is constant
+            across all wavelengths. Refracted highlights inside the slime are
+            sharp and monochromatic.
           </figcaption>
         </figure>
         <figure class="card">
-          <img src="validation/ablation_b_noDispersion.png" alt="No dispersion ablation">
-          <figcaption><strong>Week 2 comparison: no dispersion</strong>
-            Dispersion disabled with a constant index of refraction. Refractive fringing disappears; colours at
-            edges are achromatic.
+          <img src="validation/final_ablation_4_full.png" alt="Full pipeline with dispersion, zoomed mesh slime" style="aspect-ratio:4/3;">
+          <figcaption><strong>Mesh: With dispersion</strong>
+            Each wavelength refracts at a slightly different angle, fanning
+            bright refracted features into red&ndash;green&ndash;blue bands.
+            The iridescent smearing inside the body is what dispersion
+            contributes.
           </figcaption>
         </figure>
       </div>
-      <div class="grid-2" style="margin-top:0">
+      <div class="grid-2" style="margin-top:16px;">
         <figure class="card">
-          <img src="validation/w2_sss_spectral.png" alt="SSS + spectral">
-          <figcaption><strong>Week 2: SSS + spectral</strong></figcaption>
+          <img src="validation/sphere_dispersion_constIOR.png" alt="No dispersion on a sphere" style="aspect-ratio:4/3;">
+          <figcaption><strong>Sphere: Constant IOR</strong>
+            Dispersion comparison on a smooth sphere on the Venice walkway.
+            With a single IOR across all wavelengths, the refracted
+            environment (cobblestones, mossy steps, waterline) comes through
+            crisply.
+          </figcaption>
         </figure>
         <figure class="card">
-          <img src="validation/w2_sss_no_spectral.png" alt="SSS without spectral">
-          <figcaption><strong>Week 2 comparison: SSS without spectral dispersion</strong></figcaption>
+          <img src="validation/sphere_dispersion_full.png" alt="Full pipeline dispersion on a sphere" style="aspect-ratio:4/3;">
+          <figcaption><strong>Sphere: With dispersion</strong>
+            On a smooth sphere there are no visible rainbow bands. Each
+            wavelength refracts at a slightly different angle, so the
+            per-wavelength versions of the refracted scene don&rsquo;t quite
+            overlap; the visible effect is a soft blur of the refracted
+            detail rather than colour separation.
+          </figcaption>
         </figure>
       </div>
     </div>
