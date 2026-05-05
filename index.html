@@ -517,12 +517,23 @@
       </div>
       <div class="grid-2" style="margin-top:16px;">
         <figure class="card">
-          <img src="validation/out_sss_sphere.png" alt="Cornell-box SSS validation sphere" style="aspect-ratio:4/3;">
-          <figcaption><strong>Validation: pure scattering at high <span class="sym">&sigma;<sub>s</sub></span></strong>
-            Cornell-box test sphere with <span class="sym">&sigma;<sub>s</sub> = 3.0</span>, far higher than our hero. Light bounces
-            many times inside the volume before exiting, producing the
-            cloudy, milky translucency that pure scattering (with very little
-            absorption) looks like in isolation.
+          <img src="validation/f22_absorb_only.png" alt="Frame 22 with scattering effectively off" style="aspect-ratio:4/3;">
+          <figcaption><strong>Controlled: scattering effectively off</strong>
+            Same mesh, gray-uniform absorption
+            (<span class="sym">&sigma;<sub>a</sub> = (0.15, 0.15, 0.15)</span>),
+            <span class="sym">&sigma;<sub>s</sub> = 0.05</span>. Light traverses
+            the volume in straight lines, so the cobblestones refract
+            <em>sharply</em> through the body and tile boundaries stay crisp.
+          </figcaption>
+        </figure>
+        <figure class="card">
+          <img src="validation/f22_full_sss.png" alt="Frame 22 with subtle SSS softening" style="aspect-ratio:4/3;">
+          <figcaption><strong>Controlled: scattering on (<span class="sym">&sigma;<sub>s</sub> = 0.2</span>)</strong>
+            Identical mesh, identical absorption, identical lighting. The only
+            change is <span class="sym">&sigma;<sub>s</sub></span>. Light now
+            scatters about once on average crossing the body, so the same
+            cobblestones are still visible through the slime but tile edges
+            are softened and the refracted scene looks slightly hazed.
           </figcaption>
         </figure>
       </div>
